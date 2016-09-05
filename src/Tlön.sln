@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Compiler", "Compiler\Compiler.vcxproj", "{0547D6FA-42A5-4233-90E0-A271E34FBB6C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcxproj", "{2F8FEB99-CB91-4B69-9CD5-9A80F0DEBD18}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tlönpad", "Tlönpad\Tlönpad.vcxproj", "{6AD0D8D0-C0EB-4305-BB34-248A2A96F467}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0547D6FA-42A5-4233-90E0-A271E34FBB6C}.Debug|x64.ActiveCfg = Debug|x64
+		{0547D6FA-42A5-4233-90E0-A271E34FBB6C}.Debug|x64.Build.0 = Debug|x64
+		{0547D6FA-42A5-4233-90E0-A271E34FBB6C}.Release|x64.ActiveCfg = Release|x64
+		{0547D6FA-42A5-4233-90E0-A271E34FBB6C}.Release|x64.Build.0 = Release|x64
+		{2F8FEB99-CB91-4B69-9CD5-9A80F0DEBD18}.Debug|x64.ActiveCfg = Debug|x64
+		{2F8FEB99-CB91-4B69-9CD5-9A80F0DEBD18}.Debug|x64.Build.0 = Debug|x64
+		{2F8FEB99-CB91-4B69-9CD5-9A80F0DEBD18}.Release|x64.ActiveCfg = Release|x64
+		{2F8FEB99-CB91-4B69-9CD5-9A80F0DEBD18}.Release|x64.Build.0 = Release|x64
+		{6AD0D8D0-C0EB-4305-BB34-248A2A96F467}.Debug|x64.ActiveCfg = Debug|x64
+		{6AD0D8D0-C0EB-4305-BB34-248A2A96F467}.Debug|x64.Build.0 = Debug|x64
+		{6AD0D8D0-C0EB-4305-BB34-248A2A96F467}.Release|x64.ActiveCfg = Release|x64
+		{6AD0D8D0-C0EB-4305-BB34-248A2A96F467}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

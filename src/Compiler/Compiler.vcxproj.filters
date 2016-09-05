@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="ast.hpp" />
+    <ClInclude Include="parser.hpp" />
+    <ClInclude Include="printer.hpp">
+      <Filter>printers</Filter>
+    </ClInclude>
+    <ClInclude Include="cpp_printer.hpp">
+      <Filter>printers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="compiler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="printers">
+      <UniqueIdentifier>{db485723-7101-4958-b97e-bd2b26760a6c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
