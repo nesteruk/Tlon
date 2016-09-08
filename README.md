@@ -37,19 +37,23 @@ The following is an approximate featureset with explanations *why* those feature
 * Multipart declarations are permitted: `namespace Foo.Bar`. Avoids insanity like `namespace Foo { namespace Bar { ...`.
 * Fused namespace-and-class declaration. Writing `class Foo.Bar` creates namespace `Foo` and treats all subsequence input as pertaining to class `Bar`, unless...
 * Fused namespace-and-inner-class declaration. If you must. Writing `class Foo.Bar.Baz` where a class `Bar` already exists in namespace `Foo` does, you guessed it, an inner class `Baz` that's declared inside `Bar`.
+* Imports go *into* the namespace. FxCop was right.
 
 
 ## Types
 
 * Interfaces (*a la* C#/Java).
   * Can feature property definitions (like C#).
+* Union/intersection types?
 * Virtual destructor added by default.
 * Virtual dispatch-centric (visitor) member?
+* Friend classes are nonsensical. We should either throw them out completely or make them bidirectional (meaning if `A` is a friend of `B` then the reverse applies). If we keep friend classes, it should also be possible to specify entire categories, e.g., `friend MyNamespace.*`.
 
 ## Variables
 
 * Globals not allowed. All globals get synthesized into an injected `Globals` class. Global variables and functions ruin discoverability and testability and cause weird behaviors when included in multiple translation units.
-* 
+* Should be very little difference between temporary and member variable declarations.
+
 ## Functions
 * `add := (a,b:i32 := 0) => a+b` -- argument clustering, default value, no `return` statement and return type inferencing.
 * Capture modes indicated by subscript? E.g., `add_five := x => twoᵥ + threeᵣ`.
