@@ -9,8 +9,8 @@ using namespace tlön;
 
 HINSTANCE hInst;
 HWND hInput, hOutput;
-WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
-WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+WCHAR szTitle[MAX_LOADSTRING];
+WCHAR szWindowClass[MAX_LOADSTRING];
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -50,13 +50,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   return static_cast<int>(msg.wParam);
 }
 
-
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
   WNDCLASSEXW wcex;
