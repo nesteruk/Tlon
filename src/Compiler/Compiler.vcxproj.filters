@@ -10,6 +10,7 @@
       <Filter>printers</Filter>
     </ClInclude>
     <ClInclude Include="headers.hpp" />
+    <ClInclude Include="tlön.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />

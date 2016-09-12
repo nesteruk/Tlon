@@ -21,14 +21,14 @@ namespace tlön
     virtual void visit(const file& obj) = 0;
   };
 
-  struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
+  struct integral_types_ : spirit::qi::symbols<wchar_t, wstring>
   {
-    numeric_types_()
+    integral_types_()
     {
       add(L"i8", L"int8_t");
       add(L"u8", L"uint8_t");
       add(L"i16", L"int16_t");
-      add(L"u32", L"uint16_t");
+      add(L"u16", L"uint16_t");
       add(L"i32", L"int32_t");
       add(L"u32", L"uint32_t");
       add(L"i64", L"int64_t");
@@ -36,7 +36,7 @@ namespace tlön
       add(L"f32", L"float");
       add(L"f64", L"double");
     }
-  } numeric_types;
+  } integral_types;
 
   struct ast_element
   {
@@ -94,6 +94,7 @@ namespace tlön
   struct class_declaration : ast_element
   {
     vector<wstring> name;
+    vector<parameter_declaration> primary_constructor_parameters;
 
     void accept(ast_element_visitor& visitor) override{
       visitor.visit(*this);
@@ -125,12 +126,13 @@ BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_function_signature,
   (std::wstring, name),
   (std::vector<tlön::parameter_declaration>, parameters)
-  //(std::wstring, return_type)
+  (std::wstring, return_type)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::class_declaration,
-  (std::vector<wstring>, name)
+  (std::vector<wstring>, name),
+  (std::vector<tlön::parameter_declaration>, primary_constructor_parameters)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

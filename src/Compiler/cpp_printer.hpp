@@ -21,34 +21,64 @@ namespace tlön
         }
       };
 
+      template<typename T>
+      struct SymbolSearcher
+      {
+        SymbolSearcher(T searchFor, wstring& result) 
+          : _sought(searchFor), _found(result)
+        {
+        }
+
+        void operator() (wstring s, T ct)
+        {
+          if (_sought == ct)
+          {
+            _found = s;
+          }
+        }
+
+        wstring found() const { return _found; }
+
+      private:
+        T _sought;
+        wstring& _found;
+      };
+
       void visit(const assignment_statement& obj) override
       {
       }
 
       void visit(const parameter_declaration& obj) override
       {
+
+        for (int i = 0; i < obj.names.size(); ++i)
+        {
+          auto& name = obj.names[i];
+
+          buffer << obj.type << " " << name;
+          if (i + 1 != obj.names.size())
+            buffer << ", ";
+        }
       }
 
       void visit(const interface_function_signature& obj) override
       {
-        buffer << indent << "void " << obj.name << "(";
+        buffer << indent << "virtual " << obj.return_type << " " << obj.name << "(";
 
         // process arguments
         for (int pi = 0; pi < obj.parameters.size(); ++pi)
         {
           auto& p = obj.parameters[pi];
-          for (int ni = 0; ni < p.names.size(); ++ni)
-          {
-            auto& n = p.names[ni];
-            buffer << p.type << " " << n;
-            if (!(pi + 1 == obj.parameters.size() && ni + 1 == p.names.size()))
-              buffer << ", ";
-          }
+
+          // process this parameter
+          visit(p);
+
+          // comma required unless this is last
+          if (pi + 1 != obj.parameters.size())
+            buffer << ", ";
         }
 
-        buffer << ")" << nl;
-        const auto& body_scope = scope();
-
+        buffer << ") = 0;" << nl;
       }
 
       void visit(const class_declaration& obj) override 
@@ -56,8 +86,26 @@ namespace tlön
         auto ns = name_space(obj.name);
         buffer << indent << "class " << *obj.name.rbegin() << nl;
         {
-          auto s = scope(true);
+          const auto& s = scope(true);
+          buffer << reduced_indent() << "public:" << nl;
+
+          // any ctor declarations?
+          if (obj.primary_constructor_parameters.size() > 0)
+          {
+            buffer << indent << *obj.name.rbegin() << "(";
+            for (int i = 0; i < obj.primary_constructor_parameters.size(); ++i)
+            {
+              auto& p = obj.primary_constructor_parameters[i];
+              visit(p);
+              if (i + 1 != obj.primary_constructor_parameters.size())
+                buffer << ", ";
+            }
+            buffer << ") /* todo initializers */ {}";
+
+            buffer << nl;
+          }
         }
+        buffer << "/* " << *obj.name.rbegin() << "*/" << nl;
       }
 
       void visit(const interface_declaration& obj) override
@@ -72,10 +120,12 @@ namespace tlön
           for (auto& item : obj.members)
             apply_visitor(renderer{ *this }, item);
         }
+        buffer << " /* " << *obj.name.rbegin() << "*/" << nl;
       }
 
       void visit(const file& obj) override 
       {
+        buffer << indent << "#include \"tlön.h\"" << nl;
         auto r = renderer{*this};
         for (auto& item : obj.declarations)
         {

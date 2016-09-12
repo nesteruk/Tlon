@@ -96,6 +96,7 @@
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="parser.hpp" />
     <ClInclude Include="printer.hpp" />
+    <ClInclude Include="tlön.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />

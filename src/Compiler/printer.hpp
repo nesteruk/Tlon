@@ -19,6 +19,14 @@ namespace tlön
       wstring indent;
       const wchar_t* nl{ L"\r\n" };
 
+      /// Reduced indent, usable for public: and similar.
+      wstring reduced_indent() const
+      {
+        if (indent.size() < indent_char.size())
+          return indent;
+        return indent.substr(0, indent.size() - indent_char.size());
+      }
+
       struct scope_token
       {
         printer& p;
@@ -34,7 +42,7 @@ namespace tlön
         ~scope_token()
         {
           p.indent = p.indent.substr(0, p.indent.length() - p.indent_char.length());
-          p.buffer << p.indent << L"}" << (semicolon ? L";" : L"") << p.nl;
+          p.buffer << p.indent << L"}" << (semicolon ? L";" : L"");
         }
       };
 

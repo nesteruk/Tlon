@@ -16,18 +16,19 @@ namespace tlön
 
       parameter_declaration_rule %=
         spirit::eps
-        >> +(alnum) % ','
+        >> +(alnum - ')')  % ','
         >> lit(L":")
-        >> +alnum;
+        >> (integral_types | +(alnum - ')'));
 
-      function_signature_rule %= spirit::eps
-        >> +(alnum)
+      function_signature_rule %= 
+        +(alnum)
         >> lit(L":=")
         >> lit(L"(")
-        >> parameter_declaration_rule % ','
-        >> char_(L')')
-        >> char_(L';')
-        ;
+        >> -parameter_declaration_rule % ','
+        >> lit(L")")
+        >> lit(L"->")
+        >> (integral_types | +alnum)
+        >> char_(L';');
 
       interface_declaration_rule %=
         lit(L"interface ") >> +(alnum) % '.'
@@ -37,8 +38,8 @@ namespace tlön
       
       class_declaration_rule %=
         lit(L"class ") >> +(alnum) % '.'
+        >> -(lit("(") >> -parameter_declaration_rule % ',' >> lit(")"))
         >> "{"
-
         >> "}";
 
       file_rule %= spirit::eps >> 
