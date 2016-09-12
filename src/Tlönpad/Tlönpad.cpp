@@ -16,6 +16,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+void                UpdateOutput();
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -108,7 +109,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
 
+  SetWindowText(hInput, L"class Demo.ChangeMe(x,y:i16) {}\r\n\r\n"
+    L"interface Demo.SomeInterface\r\n"
+    L"{\r\n"
+    L"  add := (x,y:i32) -> i32;\r\n"
+    L"}\r\n");
+  UpdateOutput();
+
   return TRUE;
+}
+
+void UpdateOutput()
+{
+  auto len = GetWindowTextLength(hInput) + 1;
+  std::wstring input(len, 0);
+  GetWindowText(hInput, &input[0], len);
+  auto result = parse(input.begin(), input.end());
+  SetWindowText(hOutput, result.c_str());
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -122,11 +139,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     if (hi == EN_CHANGE && lParam == reinterpret_cast<LPARAM>(hInput))
     {
-      auto len = GetWindowTextLength(hInput) + 1;
-      std::wstring input(len, 0);
-      GetWindowText(hInput, &input[0], len);
-      auto result = parse(input.begin(), input.end());
-      SetWindowText(hOutput, result.c_str());
+      UpdateOutput();
     }
 
     // Parse the menu selections:
