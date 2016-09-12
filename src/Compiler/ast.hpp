@@ -111,11 +111,26 @@ namespace tlön
       visitor.visit(*this);
     }
   };
+
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+  tlön::parameter_declaration,
+  (std::vector<std::wstring>, names),
+  (std::wstring, type),
+  (std::wstring, default_value)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::interface_function_signature,
+  (std::wstring, name),
+  (std::vector<tlön::parameter_declaration>, parameters)
+  //(std::wstring, return_type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
   tlön::class_declaration,
-  (std::vector<wstring>, name),
+  (std::vector<wstring>, name)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

@@ -31,6 +31,24 @@ namespace tlön
 
       void visit(const interface_function_signature& obj) override
       {
+        buffer << indent << "void " << obj.name << "(";
+
+        // process arguments
+        for (int pi = 0; pi < obj.parameters.size(); ++pi)
+        {
+          auto& p = obj.parameters[pi];
+          for (int ni = 0; ni < p.names.size(); ++ni)
+          {
+            auto& n = p.names[ni];
+            buffer << p.type << " " << n;
+            if (!(pi + 1 == obj.parameters.size() && ni + 1 == p.names.size()))
+              buffer << ", ";
+          }
+        }
+
+        buffer << ")" << nl;
+        const auto& body_scope = scope();
+
       }
 
       void visit(const class_declaration& obj) override 

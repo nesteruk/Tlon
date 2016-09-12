@@ -4,8 +4,8 @@
 
 namespace tlön
 {
-  namespace qi = boost::spirit::qi;
-  using namespace boost::spirit::unicode;
+  namespace qi = spirit::qi;
+  using namespace spirit::unicode;
 
   template<typename Iterator>
   struct file_parser : qi::grammar<Iterator, file(), space_type>
@@ -14,7 +14,20 @@ namespace tlön
     {
       using qi::lit;
 
-      function_signature_rule %= boost::spirit::eps >> lit(L"fn");
+      parameter_declaration_rule %=
+        spirit::eps
+        >> +(alnum) % ','
+        >> lit(L":")
+        >> +alnum;
+
+      function_signature_rule %= spirit::eps
+        >> +(alnum)
+        >> lit(L":=")
+        >> lit(L"(")
+        >> parameter_declaration_rule % ','
+        >> char_(L')')
+        >> char_(L';')
+        ;
 
       interface_declaration_rule %=
         lit(L"interface ") >> +(alnum) % '.'
@@ -25,12 +38,14 @@ namespace tlön
       class_declaration_rule %=
         lit(L"class ") >> +(alnum) % '.'
         >> "{"
+
         >> "}";
 
-      file_rule %= boost::spirit::eps >> 
+      file_rule %= spirit::eps >> 
         *(interface_declaration_rule|class_declaration_rule);
     }
 
+    qi::rule<Iterator, parameter_declaration(), space_type> parameter_declaration_rule;
     qi::rule<Iterator, interface_function_signature(), space_type> function_signature_rule;
     qi::rule<Iterator, interface_declaration(), space_type> interface_declaration_rule;
     qi::rule<Iterator, class_declaration(), space_type> class_declaration_rule;
