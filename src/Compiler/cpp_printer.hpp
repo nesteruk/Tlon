@@ -50,12 +50,18 @@ namespace tlön
 
       void visit(const parameter_declaration& obj) override
       {
-
+        bool use_const_ref = true;
+        wstring result;
+        SymbolSearcher<wstring> ss{ obj.type, result };
+        if (ss.found().size() > 0) use_const_ref = false;
         for (int i = 0; i < obj.names.size(); ++i)
         {
           auto& name = obj.names[i];
 
-          buffer << obj.type << " " << name;
+          if (use_const_ref) buffer << "const ";
+          buffer << obj.type;
+          if (use_const_ref) buffer << "&";
+          buffer << " " << name;
           if (i + 1 != obj.names.size())
             buffer << ", ";
         }

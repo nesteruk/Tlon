@@ -18,7 +18,7 @@ namespace tlön
         spirit::eps
         >> +(alnum - ')')  % ','
         >> lit(L":")
-        >> (integral_types | +(alnum - ')'));
+        >> (numeric_types | known_types | +(alnum - ')'));
 
       function_signature_rule %= 
         +(alnum)
@@ -27,7 +27,7 @@ namespace tlön
         >> -parameter_declaration_rule % ','
         >> lit(L")")
         >> lit(L"->")
-        >> (integral_types | +alnum)
+        >> (numeric_types | known_types | +alnum)
         >> char_(L';');
 
       interface_declaration_rule %=

@@ -21,9 +21,9 @@ namespace tlön
     virtual void visit(const file& obj) = 0;
   };
 
-  struct integral_types_ : spirit::qi::symbols<wchar_t, wstring>
+  struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
   {
-    integral_types_()
+    numeric_types_()
     {
       add(L"i8", L"int8_t");
       add(L"u8", L"uint8_t");
@@ -36,7 +36,15 @@ namespace tlön
       add(L"f32", L"float");
       add(L"f64", L"double");
     }
-  } integral_types;
+  } numeric_types;
+
+  struct known_types_ : spirit::qi::symbols<wchar_t, wstring>
+  {
+    known_types_()
+    {
+      add(L"str", L"std::wstring");
+    }
+  } known_types;
 
   struct ast_element
   {
