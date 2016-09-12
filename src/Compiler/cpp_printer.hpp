@@ -29,30 +29,39 @@ namespace tlön
       {
       }
 
-      void visit(const interface_function_signature& obj) override
+      void visit(const interface_function_declaration& obj) override
       {
       }
 
       void visit(const class_declaration& obj) override 
       {
-        auto ns = name_space(obj.name);
+        const auto& ns = name_space(obj.name);
         buffer << indent << "class " << *obj.name.rbegin() << nl;
         {
-          auto s = scope(true);
+          const auto& s = scope(true);
         }
       }
 
       void visit(const interface_declaration& obj) override
       {
-        auto ns = name_space(obj.name);
+        const auto& ns = name_space(obj.name);
         buffer << indent << "class " << *obj.name.rbegin() << nl;
         {
-          auto s = scope(true);
+          const auto& s = scope(true);
 
           buffer << indent << "virtual ~" << *obj.name.rbegin() << "() = default;" << nl;
 
           for (auto& item : obj.members)
             apply_visitor(renderer{ *this }, item);
+        }
+      }
+
+
+      void visit(const property_declaration& obj) override
+      {
+        for (auto& item : obj.names)
+        {
+          buffer << indent << obj.type << " " << item << ";" << nl;
         }
       }
 

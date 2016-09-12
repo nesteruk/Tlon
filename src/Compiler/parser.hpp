@@ -14,26 +14,42 @@ namespace tlön
     {
       using qi::lit;
 
-      function_signature_rule %= boost::spirit::eps >> lit(L"fn");
+      /*property_declaration_rule %=
+        +alnum % ','
+        >> +alnum;
+
+      parameter_declaration_rule %=
+        +(alnum - ',') % ','
+        >> numeric_types;
+
+      function_signature_rule %=
+        +(alnum) | lit(L"void")
+        >> +alnum
+        >> parameter_declaration_rule % ',';
+
+      class_declaration_rule %=
+        lit(L"class ") >> +(alnum) % '.'
+        >> "{"
+        >> *(property_declaration_rule)
+        >> "}";*/
+
+      function_signature_rule %= spirit::eps >> lit(L"fn");
 
       interface_declaration_rule %=
         lit(L"interface ") >> +(alnum) % '.'
         >> "{"
         >> *function_signature_rule
         >> "}";
-      
-      class_declaration_rule %=
-        lit(L"class ") >> +(alnum) % '.'
-        >> "{"
-        >> "}";
 
-      file_rule %= boost::spirit::eps >> 
-        *(interface_declaration_rule|class_declaration_rule);
+      file_rule %=
+        *(interface_declaration_rule/*|class_declaration_rule*/);
     }
 
-    qi::rule<Iterator, interface_function_signature(), space_type> function_signature_rule;
+    qi::rule<Iterator, parameter_declaration(), space_type> parameter_declaration_rule;
+    qi::rule<Iterator, interface_function_declaration(), space_type> function_signature_rule;
     qi::rule<Iterator, interface_declaration(), space_type> interface_declaration_rule;
     qi::rule<Iterator, class_declaration(), space_type> class_declaration_rule;
+    qi::rule<Iterator, property_declaration(), space_type> property_declaration_rule;
     qi::rule<Iterator, file(), space_type> file_rule;
   };
 

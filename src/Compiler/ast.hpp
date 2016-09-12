@@ -2,10 +2,11 @@
 
 namespace tlön
 {
+  struct property_declaration;
   struct class_declaration;
   struct file;
   struct interface_declaration;
-  struct interface_function_signature;
+  struct interface_function_declaration;
   struct parameter_declaration;
   struct assignment_statement;
 
@@ -15,9 +16,10 @@ namespace tlön
 
     virtual void visit(const assignment_statement& obj) = 0;
     virtual void visit(const parameter_declaration& obj) = 0;
-    virtual void visit(const interface_function_signature& obj) = 0;
+    virtual void visit(const interface_function_declaration& obj) = 0;
     virtual void visit(const interface_declaration& obj) = 0;
     virtual void visit(const class_declaration& obj) = 0;
+    virtual void visit(const property_declaration& obj) = 0;
     virtual void visit(const file& obj) = 0;
   };
 
@@ -44,6 +46,17 @@ namespace tlön
     virtual void accept(ast_element_visitor& visitor) = 0;
   };
 
+  struct property_declaration : ast_element
+  {
+    vector<wstring> names;
+    wstring type;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+
   struct assignment_statement : ast_element
   {
     vector<wstring> names;
@@ -59,25 +72,25 @@ namespace tlön
   struct parameter_declaration : ast_element
   {
     vector<wstring> names;
-    wstring type, default_value;
+    wstring type;
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
     }
   };
 
-  struct interface_function_signature : ast_element
+  struct interface_function_declaration : ast_element
   {
-    wstring name;
-    vector<parameter_declaration> parameters;
     wstring return_type;
+    wstring name;
+    vector<parameter_declaration> parameter_declarations;
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
     }
   };
 
-  typedef variant<interface_function_signature> interface_member;
+  typedef variant<interface_function_declaration> interface_member;
 
   struct interface_declaration : ast_element
   {
@@ -91,16 +104,19 @@ namespace tlön
     }
   };
 
+  typedef variant<property_declaration> class_member_declaration;
+
   struct class_declaration : ast_element
   {
     vector<wstring> name;
+    vector<class_member_declaration> members;
 
-    void accept(ast_element_visitor& visitor) override{
+    void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
     }
   };
 
-  typedef variant<interface_declaration,class_declaration> top_level_declaration;
+  typedef variant<interface_declaration/*, class_declaration*/> top_level_declaration;
 
   struct file : ast_element
   {
@@ -114,8 +130,28 @@ namespace tlön
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+  tlön::property_declaration,
+  (std::vector<std::wstring>, names),
+  (std::wstring, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
   tlön::class_declaration,
-  (std::vector<wstring>, name),
+  (std::vector<std::wstring>, name),
+  (std::vector<tlön::class_member_declaration>, members)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::parameter_declaration,
+  (std::vector<std::wstring>, names),
+  (std::wstring, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::interface_function_declaration,
+  (std::wstring, return_type),
+  (std::wstring, name),
+  (std::vector<tlön::parameter_declaration>, parameter_declarations)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
