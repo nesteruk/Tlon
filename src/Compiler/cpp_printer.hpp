@@ -7,6 +7,24 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
+      void visit(const tuple_signature_element& obj) override
+      {
+        buffer << obj.type;
+      }
+
+      void visit(const tuple_signature& obj) override
+      {
+        buffer << "std::tuple<";
+        for (int i = 0; i < obj.elements.size(); ++i)
+        {
+          auto& e = obj.elements[i];
+          visit(e);
+          if (i + 1 != obj.elements.size())
+            buffer << ",";
+        }
+        buffer << ">";
+      }
+
       struct renderer : static_visitor<>
       {
         cpp_printer& printer;
@@ -14,6 +32,11 @@ namespace tlön
         explicit renderer(cpp_printer& printer)
           : printer(printer)
         {
+        }
+
+        void operator()(const wstring& s) const
+        {
+          printer.buffer << s;
         }
 
         template <typename T> void operator()(T& t) const {
@@ -50,16 +73,19 @@ namespace tlön
 
       void visit(const parameter_declaration& obj) override
       {
-        bool use_const_ref = true;
-        wstring result;
-        SymbolSearcher<wstring> ss{ obj.type, result };
-        if (ss.found().size() > 0) use_const_ref = false;
+        bool use_const_ref = false; // disable for now
+        /*wstring result;
+        SymbolSearcher<wstring> ss(obj.type, result);
+        if (ss.found().size() > 0) use_const_ref = false;*/
         for (int i = 0; i < obj.names.size(); ++i)
         {
           auto& name = obj.names[i];
 
           if (use_const_ref) buffer << "const ";
-          buffer << obj.type;
+          
+          apply_visitor(renderer{ *this }, obj.type);
+          //buffer << obj.type;
+          
           if (use_const_ref) buffer << "&";
           buffer << " " << name;
           if (i + 1 != obj.names.size())
@@ -69,7 +95,10 @@ namespace tlön
 
       void visit(const interface_function_signature& obj) override
       {
-        buffer << indent << "virtual " << obj.return_type << " " << obj.name << "(";
+        buffer << indent << "virtual ";
+
+        apply_visitor(renderer{ *this }, obj.return_type);
+        buffer << " " << obj.name << "(";
 
         // process arguments
         for (int pi = 0; pi < obj.parameters.size(); ++pi)
@@ -110,8 +139,12 @@ namespace tlön
 
             buffer << nl;
           }
+
+          // members
+          for (auto& m : obj.members)
+            apply_visitor(renderer{ *this }, m);
         }
-        buffer << "/* " << *obj.name.rbegin() << "*/" << nl;
+        buffer << "/* " << *obj.name.rbegin() << " */" << nl;
       }
 
       void visit(const interface_declaration& obj) override
@@ -126,7 +159,7 @@ namespace tlön
           for (auto& item : obj.members)
             apply_visitor(renderer{ *this }, item);
         }
-        buffer << " /* " << *obj.name.rbegin() << "*/" << nl;
+        buffer << " /* " << *obj.name.rbegin() << " */" << nl;
       }
 
       void visit(const file& obj) override 

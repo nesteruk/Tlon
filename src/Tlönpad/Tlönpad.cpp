@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   UNREFERENCED_PARAMETER(lpCmdLine);
 
   SetProcessDpiAwareness(PROCESS_SYSTEM_DPI_AWARE);
-    
+
   LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
   LoadStringW(hInstance, IDC_TLNPAD, szWindowClass, MAX_LOADSTRING);
   MyRegisterClass(hInstance);
@@ -115,6 +115,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     L"interface Demo.SomeInterface\r\n"
     L"{\r\n"
     L"  add := (a,b:i32, c:str) -> i32;\r\n"
+    L"  \r\n"
+    L"  tupledemo := (x:(i8,str)) -> (str,u8);"
     L"}\r\n");
   UpdateOutput();
 

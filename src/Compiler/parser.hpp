@@ -14,20 +14,40 @@ namespace tlön
     {
       using qi::lit;
 
+      identifier_rule %= 
+        +(alnum | L'_');
+
+      basic_type_rule %=
+        numeric_types 
+        | known_types 
+        | identifier_rule;
+
+      type_specification_rule %=
+        basic_type_rule | tuple_signature_rule;
+
+      tuple_signature_element_rule %=
+        basic_type_rule;
+
+      tuple_signature_rule %=
+        spirit::eps >>
+        lit(L"(")
+        >> tuple_signature_element_rule % ','
+        >> lit(L")");
+
       parameter_declaration_rule %=
         spirit::eps
-        >> +(alnum - ')')  % ','
+        >> identifier_rule % ','
         >> lit(L":")
-        >> (numeric_types | known_types | +(alnum - ')'));
+        >> type_specification_rule;
 
       function_signature_rule %= 
-        +(alnum)
+        identifier_rule
         >> lit(L":=")
         >> lit(L"(")
         >> -parameter_declaration_rule % ','
         >> lit(L")")
         >> lit(L"->")
-        >> (numeric_types | known_types | +alnum)
+        >> type_specification_rule
         >> char_(L';');
 
       interface_declaration_rule %=
@@ -40,12 +60,18 @@ namespace tlön
         lit(L"class ") >> +(alnum) % '.'
         >> -(lit("(") >> -parameter_declaration_rule % ',' >> lit(")"))
         >> "{"
+        >> *(function_signature_rule)
         >> "}";
 
       file_rule %= spirit::eps >> 
         *(interface_declaration_rule|class_declaration_rule);
     }
 
+    qi::rule<Iterator, type_specification(), space_type> type_specification_rule;
+    qi::rule<Iterator, wstring(), space_type> identifier_rule;
+    qi::rule<Iterator, wstring(), space_type> basic_type_rule;
+    qi::rule<Iterator, tuple_signature_element(), space_type> tuple_signature_element_rule;
+    qi::rule<Iterator, tuple_signature(), space_type> tuple_signature_rule;
     qi::rule<Iterator, parameter_declaration(), space_type> parameter_declaration_rule;
     qi::rule<Iterator, interface_function_signature(), space_type> function_signature_rule;
     qi::rule<Iterator, interface_declaration(), space_type> interface_declaration_rule;

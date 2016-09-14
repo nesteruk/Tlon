@@ -2,6 +2,8 @@
 
 namespace tlön
 {
+  struct tuple_signature;
+  struct tuple_signature_element;
   struct class_declaration;
   struct file;
   struct interface_declaration;
@@ -19,6 +21,8 @@ namespace tlön
     virtual void visit(const interface_declaration& obj) = 0;
     virtual void visit(const class_declaration& obj) = 0;
     virtual void visit(const file& obj) = 0;
+    virtual void visit(const tuple_signature_element& obj) = 0;
+    virtual void visit(const tuple_signature& obj) = 0;
   };
 
   struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
@@ -52,6 +56,29 @@ namespace tlön
     virtual void accept(ast_element_visitor& visitor) = 0;
   };
 
+  struct tuple_signature_element : ast_element
+  {
+    //optional<wstring> name;
+    wstring type;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+
+  struct tuple_signature : ast_element
+  {
+    vector<tuple_signature_element> elements;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+  
+  typedef variant<wstring, tuple_signature> type_specification;
+
   struct assignment_statement : ast_element
   {
     vector<wstring> names;
@@ -67,7 +94,8 @@ namespace tlön
   struct parameter_declaration : ast_element
   {
     vector<wstring> names;
-    wstring type, default_value;
+    type_specification type;
+    wstring default_value;
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
@@ -78,7 +106,7 @@ namespace tlön
   {
     wstring name;
     vector<parameter_declaration> parameters;
-    wstring return_type;
+    type_specification return_type;
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
@@ -99,10 +127,13 @@ namespace tlön
     }
   };
 
+  typedef variant<interface_function_signature> class_member;
+
   struct class_declaration : ast_element
   {
     vector<wstring> name;
     vector<parameter_declaration> primary_constructor_parameters;
+    vector<class_member> members;
 
     void accept(ast_element_visitor& visitor) override{
       visitor.visit(*this);
@@ -124,9 +155,20 @@ namespace tlön
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+  tlön::tuple_signature_element,
+  //(boost::optional<std::wstring>, name),
+  (std::wstring, type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::tuple_signature,
+  (std::vector<tlön::tuple_signature_element>, elements)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
   tlön::parameter_declaration,
   (std::vector<std::wstring>, names),
-  (std::wstring, type),
+  (tlön::type_specification, type),
   (std::wstring, default_value)
 )
 
@@ -134,13 +176,14 @@ BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_function_signature,
   (std::wstring, name),
   (std::vector<tlön::parameter_declaration>, parameters)
-  (std::wstring, return_type)
+  (tlön::type_specification, return_type)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::class_declaration,
   (std::vector<wstring>, name),
-  (std::vector<tlön::parameter_declaration>, primary_constructor_parameters)
+  (std::vector<tlön::parameter_declaration>, primary_constructor_parameters),
+  (std::vector<tlön::class_member>, members)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
