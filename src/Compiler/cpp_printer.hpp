@@ -1,5 +1,6 @@
 #pragma once
 #include "printer.hpp"
+#include "chars.h"
 
 namespace tlön
 {
@@ -7,12 +8,17 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
+      static wstring identifier(const wstring& name)
+      {
+        return identifier_helper::get(name);
+      }
+
       void visit(const function_body& obj) override
       {
         buffer << indent;
 
         apply_visitor(renderer{ *this }, obj.return_type);
-        buffer << " " << obj.name << "(";
+        buffer << " " << identifier(obj.name) << "(";
 
         // process arguments
         for (int pi = 0; pi < obj.parameters.size(); ++pi)
@@ -35,14 +41,15 @@ namespace tlön
 
       void visit(const property& obj) override
       {
-        for (const auto& name : obj.names)
+        for (const auto& raw_name : obj.names)
         {
+          auto name = identifier(raw_name);
           // property backing field is protected
           // getters and setters are public
           buffer << reduced_indent() << "protected:" << nl;
           buffer << indent;
           apply_visitor(renderer{ *this }, obj.type);
-          buffer << " " << name;
+          buffer << " " << identifier(name);
 
           // default value, if any
           if (obj.default_value.size() > 0)
@@ -143,7 +150,7 @@ namespace tlön
         if (ss.found().size() > 0) use_const_ref = false;*/
         for (int i = 0; i < obj.names.size(); ++i)
         {
-          auto& name = obj.names[i];
+          auto name = identifier(obj.names[i]);
 
           if (use_const_ref) buffer << "const ";
           
@@ -183,7 +190,8 @@ namespace tlön
       void visit(const class_declaration& obj) override 
       {
         auto ns = name_space(obj.name);
-        buffer << indent << "class " << *obj.name.rbegin() << nl;
+        auto name = identifier(*obj.name.rbegin());
+        buffer << indent << "class " << name << nl;
         {
           const auto& s = scope(true);
           buffer << reduced_indent() << "public:" << nl;
@@ -192,7 +200,7 @@ namespace tlön
           // any ctor declarations?
           if (param_count > 0)
           {
-            buffer << indent << *obj.name.rbegin() << "(";
+            buffer << indent << name << "(";
             for (int i = 0; i < param_count; ++i)
             {
               auto& p = obj.primary_constructor_parameters[i];
@@ -222,23 +230,24 @@ namespace tlön
           for (auto& m : obj.members)
             apply_visitor(renderer{ *this }, m);
         }
-        buffer << "/* " << *obj.name.rbegin() << " */" << nl;
+        buffer << "/* " << name << " */" << nl;
       }
 
       void visit(const interface_declaration& obj) override
       {
         auto ns = name_space(obj.name);
-        buffer << indent << "class " << *obj.name.rbegin() << nl;
+        auto name = identifier(*obj.name.rbegin());
+        buffer << indent << "class " << name << nl;
         {
           auto s = scope(true);
 
-          buffer << indent << "virtual ~" << *obj.name.rbegin() 
+          buffer << indent << "virtual ~" << name 
             << "() = default;" << nl;
 
           for (auto& item : obj.members)
             apply_visitor(renderer{ *this }, item);
         }
-        buffer << " /* " << *obj.name.rbegin() << " */" << nl;
+        buffer << " /* " << name << " */" << nl;
       }
 
       void visit(const file& obj) override 

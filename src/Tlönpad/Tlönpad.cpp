@@ -76,11 +76,48 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 LRESULT CALLBACK InputEditProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-  if (msg == WM_KEYDOWN
-    && wp == 187 /* = */
-    && GetKeyState(VK_CONTROL) & 0x8000)
+  static bool ctrl{ false };
+  static bool shift{ false };
+  bool alt = GetKeyState(VK_MENU) < 0;
+
+  if (msg == WM_CHAR)
   {
-    SendMessage(hwnd, WM_CHAR, 8801 /* ≡ */, 0);
+    if (wp == 0x2A)
+    {
+      wp = 183;
+    } else if (wp == 0x2D)
+    {
+      wp = 8722;
+    }
+  }
+  if (msg == WM_KEYDOWN)
+  {
+    if (wp == 187 /* = */ && ctrl)
+    {
+      SendMessage(hwnd, WM_CHAR, 8801 /* ≡ */, 0);
+    }
+    else if (wp == 48 /* 0 */ && ctrl)
+    {
+      if (alt)
+        SendMessage(hwnd, WM_CHAR, 8304 /* ⁰ */, 0);
+      else
+        SendMessage(hwnd, WM_CHAR, 8320 /* ₀ */, 0);
+    } else if (wp == VK_SHIFT)
+    {
+      shift = true;
+    } else if (wp == VK_CONTROL)
+    {
+      ctrl = true;
+    }
+  } 
+  else if (msg == WM_KEYUP)
+  {
+    if (wp == VK_SHIFT) {
+      shift = false;
+    }
+    if (wp == VK_CONTROL) {
+      ctrl = false;
+    }
   }
   return CallWindowProc(oldEditProc, hwnd, msg, wp, lp);
 }
@@ -131,7 +168,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     L"{\r\n"
     L"  add := (a,b:i32, c:string) -> i32;\r\n"
     L"  \r\n"
-    L"  tupledemo := (x:(i8,string)) -> (str,u8);\r\n"
+    L"  tupledemo := (x:(i8,string)) -> (string,u8);\r\n"
     L"}\r\n");
   UpdateOutput();
 

@@ -15,7 +15,28 @@ namespace tlön
       using qi::lit;
 
       identifier_rule %=
-        +(alnum | L'_');
+        +(alnum 
+          | char_(L'_')
+          | char_(L'₀')
+          | char_(L'₁')
+          | char_(L'₂')
+          | char_(L'₃')
+          | char_(L'₄')
+          | char_(L'₅')
+          | char_(L'₆')
+          | char_(L'₇')
+          | char_(L'₈')
+          | char_(L'₉')
+          | char_(L'₊')
+          | char_(L'₋')
+          | char_(L'₌')
+          | char_(L'₍')
+          | char_(L'₎')
+          | char_(L'⨧')
+          | char_(L'ᵢ')
+          | char_(L'ⱼ')
+          | char_(L'ₖ')
+          | char_(L'⁰'));
 
       basic_type_rule %=
         numeric_types

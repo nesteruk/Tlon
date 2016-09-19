@@ -92,6 +92,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ast.hpp" />
+    <ClInclude Include="chars.h" />
     <ClInclude Include="cpp_printer.hpp" />
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="parser.hpp" />
@@ -99,6 +100,7 @@
     <ClInclude Include="tlön.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="chars.cpp" />
     <ClCompile Include="compiler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

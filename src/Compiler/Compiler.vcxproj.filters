@@ -11,9 +11,11 @@
     </ClInclude>
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="tlön.h" />
+    <ClInclude Include="chars.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />
+    <ClCompile Include="chars.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="printers">
