@@ -11,6 +11,7 @@ namespace tlön
   struct parameter_declaration;
   struct assignment_statement;
   struct property;
+  struct function_body;
 
   struct ast_element_visitor
   {
@@ -25,6 +26,7 @@ namespace tlön
     virtual void visit(const tuple_signature_element& obj) = 0;
     virtual void visit(const tuple_signature& obj) = 0;
     virtual void visit(const property& obj) = 0;
+    virtual void visit(const function_body& obj) = 0;
   };
 
   struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
@@ -41,6 +43,8 @@ namespace tlön
       add(L"u64", L"uint64_t");
       add(L"f32", L"float");
       add(L"f64", L"double");
+      add(L"isize", L"int");
+      add(L"usize", L"unsigned int");
     }
   } numeric_types;
 
@@ -48,7 +52,7 @@ namespace tlön
   {
     known_types_()
     {
-      add(L"str", L"std::wstring");
+      add(L"string", L"std::wstring");
     }
   } known_types;
 
@@ -117,11 +121,22 @@ namespace tlön
 
   typedef variant<interface_function_signature> interface_member;
 
+  struct function_body : ast_element
+  {
+    wstring name;
+    vector<parameter_declaration> parameters;
+    type_specification return_type;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+
   struct interface_declaration : ast_element
   {
     vector<wstring> name;
     vector<interface_member> members;
-
 
     void accept(ast_element_visitor& visitor) override
     {
@@ -131,8 +146,9 @@ namespace tlön
 
   struct property : ast_element
   {
-    wstring name;
+    vector<wstring> names;
     type_specification type;
+    wstring default_value;
 
     void accept(ast_element_visitor& visitor) override
     {
@@ -140,7 +156,7 @@ namespace tlön
     }
   };
 
-  typedef variant<interface_function_signature, property> class_member;
+  typedef variant<function_body, property> class_member;
 
   struct class_declaration : ast_element
   {
@@ -164,14 +180,13 @@ namespace tlön
       visitor.visit(*this);
     }
   };
-
-  
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::property,
-  (std::wstring, name),
-  (tlön::type_specification, type)
+  (std::vector<std::wstring>, names),
+  (tlön::type_specification, type),
+  (std::wstring, default_value)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -194,6 +209,13 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_function_signature,
+  (std::wstring, name),
+  (std::vector<tlön::parameter_declaration>, parameters)
+  (tlön::type_specification, return_type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::function_body,
   (std::wstring, name),
   (std::vector<tlön::parameter_declaration>, parameters)
   (tlön::type_specification, return_type)

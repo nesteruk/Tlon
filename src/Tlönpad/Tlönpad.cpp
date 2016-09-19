@@ -108,7 +108,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(InputEditProc)));
 
   hOutput = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
-    WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_LEFT,
+    WS_VISIBLE | WS_CHILD | WS_BORDER | WS_HSCROLL | WS_VSCROLL
+      | ES_MULTILINE | ES_LEFT 
+      | ES_AUTOVSCROLL | ES_AUTOHSCROLL,
     rcClient.right / 2, 0, rcClient.right / 2, rcClient.bottom,
     hWnd, nullptr, hInstance, nullptr);
 
@@ -127,9 +129,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     L"}\r\n\r\n"
     L"interface Demo.SomeInterface\r\n"
     L"{\r\n"
-    L"  add := (a,b:i32, c:str) -> i32;\r\n"
+    L"  add := (a,b:i32, c:string) -> i32;\r\n"
     L"  \r\n"
-    L"  tupledemo := (x:(i8,str)) -> (str,u8);\r\n"
+    L"  tupledemo := (x:(i8,string)) -> (str,u8);\r\n"
     L"}\r\n");
   UpdateOutput();
 

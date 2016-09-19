@@ -7,33 +7,68 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
+      void visit(const function_body& obj) override
+      {
+        buffer << indent;
+
+        apply_visitor(renderer{ *this }, obj.return_type);
+        buffer << " " << obj.name << "(";
+
+        // process arguments
+        for (int pi = 0; pi < obj.parameters.size(); ++pi)
+        {
+          auto& p = obj.parameters[pi];
+
+          // process this parameter
+          visit(p);
+
+          // comma required unless this is last
+          if (pi + 1 != obj.parameters.size())
+            buffer << ", ";
+        }
+
+        buffer << ")" << nl;
+        {
+          const auto& _ = scope();
+        }
+      }
+
       void visit(const property& obj) override
       {
-        // property backing field is protected
-        // getters and setters are public
-        buffer << reduced_indent() << "protected:" << nl;
-        buffer << indent; 
-        apply_visitor(renderer{ *this }, obj.type);
-        buffer << " " << obj.name << ";" << nl;
-        buffer << reduced_indent() << "public:" << nl;
-        
-        buffer << indent << "void set_" << obj.name << "(const ";
-        apply_visitor(renderer{ *this }, obj.type);
-        buffer << " " << obj.name << ")" << nl;
+        for (const auto& name : obj.names)
         {
-          const auto& _ = scope();
-          buffer << indent << "this->" << obj.name << " = " << obj.name << ";" << nl;
-        }
-        buffer << nl;
+          // property backing field is protected
+          // getters and setters are public
+          buffer << reduced_indent() << "protected:" << nl;
+          buffer << indent;
+          apply_visitor(renderer{ *this }, obj.type);
+          buffer << " " << name;
 
-        buffer << indent;
-        apply_visitor(renderer{ *this }, obj.type);
-        buffer << " get_" << obj.name << "() const" << nl;
-        {
-          const auto& _ = scope();
-          buffer << indent << "return " << obj.name << ";" << nl;
+          // default value, if any
+          if (obj.default_value.size() > 0)
+            buffer << "{" << obj.default_value << "}";
+
+          buffer << ";" << nl;
+          buffer << reduced_indent() << "public:" << nl;
+
+          buffer << indent << "void set_" << name << "(const ";
+          apply_visitor(renderer{ *this }, obj.type);
+          buffer << " " << name << ")" << nl;
+          {
+            const auto& _ = scope();
+            buffer << indent << "this->" << name << " = " << name << ";" << nl;
+          }
+          buffer << nl;
+
+          buffer << indent;
+          apply_visitor(renderer{ *this }, obj.type);
+          buffer << " get_" << name << "() const" << nl;
+          {
+            const auto& _ = scope();
+            buffer << indent << "return " << name << ";" << nl;
+          }
+          buffer << nl;
         }
-        buffer << nl;
       }
 
       void visit(const tuple_signature_element& obj) override
@@ -170,9 +205,10 @@ namespace tlön
             {
               auto& p = obj.primary_constructor_parameters[i];
               auto& names = p.names;
+              
               for (int j = 0; j < names.size(); ++j)
               {
-                buffer << indent << wformat(L"%1%{%1%}") % names[j];
+                buffer << indent << indent_char << wformat(L"%1%{%1%}") % names[j];
                 if (!(i + 1 == param_count && j + 1 == names.size()))
                   buffer << ", " << nl;
               }
@@ -196,7 +232,8 @@ namespace tlön
         {
           auto s = scope(true);
 
-          buffer << indent << "virtual ~" << *obj.name.rbegin() << "() = default;" << nl;
+          buffer << indent << "virtual ~" << *obj.name.rbegin() 
+            << "() = default;" << nl;
 
           for (auto& item : obj.members)
             apply_visitor(renderer{ *this }, item);

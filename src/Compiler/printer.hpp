@@ -86,7 +86,7 @@ namespace tlön
       {
         return scope_token{ *this, semicolon };
       }
-    private:
+    protected:
       const wstring indent_char{ L"  " };
     };
   }

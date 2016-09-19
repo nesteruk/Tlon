@@ -14,12 +14,12 @@ namespace tlön
     {
       using qi::lit;
 
-      identifier_rule %= 
+      identifier_rule %=
         +(alnum | L'_');
 
       basic_type_rule %=
-        numeric_types 
-        | known_types 
+        numeric_types
+        | known_types
         | identifier_rule;
 
       type_specification_rule %=
@@ -29,9 +29,10 @@ namespace tlön
         basic_type_rule;
 
       property_rule %=
-        +alnum
+        identifier_rule % ','
         >> lit(L":")
         >> type_specification_rule
+        >> -(lit(L":=") >> +(alnum - ';'))
         >> lit(L";");
 
       tuple_signature_rule %=
@@ -46,7 +47,18 @@ namespace tlön
         >> lit(L":")
         >> type_specification_rule;
 
-      function_signature_rule %= 
+      function_body_rule %=
+        identifier_rule
+        >> lit(L":=")
+        >> lit(L"(")
+        >> -parameter_declaration_rule % ','
+        >> lit(L")")
+        >> lit(L"->")
+        >> type_specification_rule
+        >> lit(L"{")
+        >> lit(L"}");
+
+      function_signature_rule %=
         identifier_rule
         >> lit(L":=")
         >> lit(L"(")
@@ -61,18 +73,19 @@ namespace tlön
         >> "{"
         >> *function_signature_rule
         >> "}";
-      
+
       class_declaration_rule %=
         lit(L"class ") >> +(alnum) % '.'
         >> -(lit(L"(") >> -parameter_declaration_rule % ',' >> lit(")"))
         >> "{"
-        >> *(function_signature_rule | property_rule)
+        >> *(function_body_rule | property_rule)
         >> "}";
 
-      file_rule %= spirit::eps >> 
-        *(interface_declaration_rule|class_declaration_rule);
+      file_rule %= spirit::eps >>
+        *(interface_declaration_rule | class_declaration_rule);
     }
 
+    qi::rule<Iterator, function_body(), space_type> function_body_rule;
     qi::rule<Iterator, property(), space_type> property_rule;
     qi::rule<Iterator, type_specification(), space_type> type_specification_rule;
     qi::rule<Iterator, wstring(), space_type> identifier_rule;
