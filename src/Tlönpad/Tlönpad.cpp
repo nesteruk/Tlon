@@ -1,9 +1,9 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Resource.h"
 
 #include "../Compiler/headers.hpp"
 #include "../Compiler/parser.hpp"
-using namespace tl�n;
+using namespace tlön;
 
 #define MAX_LOADSTRING 100
 
@@ -11,6 +11,7 @@ HINSTANCE hInst;
 HWND hInput, hOutput;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
+WNDPROC oldEditProc;
 
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -38,7 +39,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   }
 
   HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TLNPAD));
-
   MSG msg;
 
   while (GetMessage(&msg, nullptr, 0, 0))
@@ -74,6 +74,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
   return RegisterClassExW(&wcex);
 }
 
+LRESULT CALLBACK InputEditProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+  if (msg == WM_KEYDOWN
+    && wp == 187 /* = */
+    && GetKeyState(VK_CONTROL) & 0x8000)
+  {
+    SendMessage(hwnd, WM_CHAR, 8801 /* ≡ */, 0);
+  }
+  return CallWindowProc(oldEditProc, hwnd, msg, wp, lp);
+}
+
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
   hInst = hInstance; // Store instance handle in our global variable
@@ -81,10 +92,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
     CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-  if (!hWnd)
-  {
-    return FALSE;
-  }
+  if (!hWnd) return FALSE;
 
   RECT rcClient;
   GetClientRect(hWnd, &rcClient);
@@ -95,6 +103,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     hWnd, nullptr, hInstance, nullptr);
 
   if (!hInput) return FALSE;
+
+  oldEditProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(hInput, 
+    GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(InputEditProc)));
 
   hOutput = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("EDIT"), TEXT(""),
     WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_LEFT,
@@ -111,12 +122,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
 
-  SetWindowText(hInput, L"class Demo.ChangeMe(x,y:i16) {}\r\n\r\n"
+  SetWindowText(hInput, L"class Demo.ChangeMe(x,y:i16) {\r\n"
+    L"  z:i32;\r\n"
+    L"}\r\n\r\n"
     L"interface Demo.SomeInterface\r\n"
     L"{\r\n"
     L"  add := (a,b:i32, c:str) -> i32;\r\n"
     L"  \r\n"
-    L"  tupledemo := (x:(i8,str)) -> (str,u8);"
+    L"  tupledemo := (x:(i8,str)) -> (str,u8);\r\n"
     L"}\r\n");
   UpdateOutput();
 

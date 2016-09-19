@@ -10,6 +10,7 @@ namespace tlön
   struct interface_function_signature;
   struct parameter_declaration;
   struct assignment_statement;
+  struct property;
 
   struct ast_element_visitor
   {
@@ -23,6 +24,7 @@ namespace tlön
     virtual void visit(const file& obj) = 0;
     virtual void visit(const tuple_signature_element& obj) = 0;
     virtual void visit(const tuple_signature& obj) = 0;
+    virtual void visit(const property& obj) = 0;
   };
 
   struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
@@ -127,7 +129,18 @@ namespace tlön
     }
   };
 
-  typedef variant<interface_function_signature> class_member;
+  struct property : ast_element
+  {
+    wstring name;
+    type_specification type;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+
+  typedef variant<interface_function_signature, property> class_member;
 
   struct class_declaration : ast_element
   {
@@ -152,7 +165,14 @@ namespace tlön
     }
   };
 
+  
 }
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::property,
+  (std::wstring, name),
+  (tlön::type_specification, type)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::tuple_signature_element,

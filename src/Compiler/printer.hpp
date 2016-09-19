@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include "ast.hpp"
+#include <boost/format.hpp>
 
 namespace tlön
 {

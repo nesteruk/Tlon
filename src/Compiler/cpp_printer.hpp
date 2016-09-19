@@ -7,6 +7,35 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
+      void visit(const property& obj) override
+      {
+        // property backing field is protected
+        // getters and setters are public
+        buffer << reduced_indent() << "protected:" << nl;
+        buffer << indent; 
+        apply_visitor(renderer{ *this }, obj.type);
+        buffer << " " << obj.name << ";" << nl;
+        buffer << reduced_indent() << "public:" << nl;
+        
+        buffer << indent << "void set_" << obj.name << "(const ";
+        apply_visitor(renderer{ *this }, obj.type);
+        buffer << " " << obj.name << ")" << nl;
+        {
+          const auto& _ = scope();
+          buffer << indent << "this->" << obj.name << " = " << obj.name << ";" << nl;
+        }
+        buffer << nl;
+
+        buffer << indent;
+        apply_visitor(renderer{ *this }, obj.type);
+        buffer << " get_" << obj.name << "() const" << nl;
+        {
+          const auto& _ = scope();
+          buffer << indent << "return " << obj.name << ";" << nl;
+        }
+        buffer << nl;
+      }
+
       void visit(const tuple_signature_element& obj) override
       {
         buffer << obj.type;
@@ -124,18 +153,31 @@ namespace tlön
           const auto& s = scope(true);
           buffer << reduced_indent() << "public:" << nl;
 
+          auto param_count = obj.primary_constructor_parameters.size();
           // any ctor declarations?
-          if (obj.primary_constructor_parameters.size() > 0)
+          if (param_count > 0)
           {
             buffer << indent << *obj.name.rbegin() << "(";
-            for (int i = 0; i < obj.primary_constructor_parameters.size(); ++i)
+            for (int i = 0; i < param_count; ++i)
             {
               auto& p = obj.primary_constructor_parameters[i];
               visit(p);
-              if (i + 1 != obj.primary_constructor_parameters.size())
+              if (i + 1 != param_count)
                 buffer << ", ";
             }
-            buffer << ") /* todo initializers */ {}";
+            buffer << ") : " << nl;
+            for (int i = 0; i < param_count; ++i)
+            {
+              auto& p = obj.primary_constructor_parameters[i];
+              auto& names = p.names;
+              for (int j = 0; j < names.size(); ++j)
+              {
+                buffer << indent << wformat(L"%1%{%1%}") % names[j];
+                if (!(i + 1 == param_count && j + 1 == names.size()))
+                  buffer << ", " << nl;
+              }
+            }
+            buffer << " {}" << nl;
 
             buffer << nl;
           }
