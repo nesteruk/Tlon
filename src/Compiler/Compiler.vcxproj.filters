@@ -12,6 +12,9 @@
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="tlön.h" />
     <ClInclude Include="chars.h" />
+    <ClInclude Include="vhdl_printer.hpp">
+      <Filter>printers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />

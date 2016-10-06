@@ -161,7 +161,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
 
-  SetWindowText(hInput, L"class Demo.ChangeMe(x,y:i16) {\r\n"
+  SetWindowText(hInput, L"class Demo.ChangeMe(x₀,y:i16) {\r\n"
     L"  z_this_fails:i32;\r\n"
     L"}\r\n\r\n"
     L"interface Demo.SomeInterface\r\n"

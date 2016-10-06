@@ -15,7 +15,7 @@ namespace tlön
       using qi::lit;
 
       identifier_rule %=
-        +(alnum 
+        +(alnum
           | char_(L'_')
           | char_(L'₀')
           | char_(L'₁')
@@ -74,9 +74,10 @@ namespace tlön
         >> lit(L"(")
         >> -parameter_declaration_rule % ','
         >> lit(L")")
-        >> lit(L"->")
+        //>> lit(L"->") // epic fail if you uncomment this
         >> type_specification_rule
         >> lit(L"{")
+        >> *(assignment_statement_rule)
         >> lit(L"}");
 
       function_signature_rule %=
@@ -102,10 +103,16 @@ namespace tlön
         >> *(function_body_rule | property_rule)
         >> "}";
 
+      assignment_statement_rule %=
+        +identifier_rule % ","
+        >> lit(L"<-")
+        >> identifier_rule;
+
       file_rule %= spirit::eps >>
         *(interface_declaration_rule | class_declaration_rule);
     }
 
+    qi::rule<Iterator, assignment_statement(), space_type> assignment_statement_rule;
     qi::rule<Iterator, function_body(), space_type> function_body_rule;
     qi::rule<Iterator, property(), space_type> property_rule;
     qi::rule<Iterator, type_specification(), space_type> type_specification_rule;

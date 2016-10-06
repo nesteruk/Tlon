@@ -82,7 +82,7 @@ namespace tlön
       visitor.visit(*this);
     }
   };
-  
+
   typedef variant<wstring, tuple_signature> type_specification;
 
   struct assignment_statement : ast_element
@@ -126,6 +126,7 @@ namespace tlön
     wstring name;
     vector<parameter_declaration> parameters;
     type_specification return_type;
+    vector<statement> statements;
 
     void accept(ast_element_visitor& visitor) override
     {
@@ -164,12 +165,12 @@ namespace tlön
     vector<parameter_declaration> primary_constructor_parameters;
     vector<class_member> members;
 
-    void accept(ast_element_visitor& visitor) override{
+    void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
     }
   };
 
-  typedef variant<interface_declaration,class_declaration> top_level_declaration;
+  typedef variant<interface_declaration, class_declaration> top_level_declaration;
 
   struct file : ast_element
   {
@@ -181,6 +182,12 @@ namespace tlön
     }
   };
 }
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::assignment_statement,
+  (std::vector<std::wstring>, names),
+  (std::wstring, value)
+)
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::property,
@@ -210,15 +217,16 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_function_signature,
   (std::wstring, name),
-  (std::vector<tlön::parameter_declaration>, parameters)
+  (std::vector<tlön::parameter_declaration>, parameters),
   (tlön::type_specification, return_type)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::function_body,
   (std::wstring, name),
-  (std::vector<tlön::parameter_declaration>, parameters)
-  (tlön::type_specification, return_type)
+  (std::vector<tlön::parameter_declaration>, parameters),
+  (tlön::type_specification, return_type),
+  (std::vector<tlön::statement>, statements)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
@@ -230,7 +238,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_declaration,
-  (std::vector<wstring>, name),
+  (std::vector<std::wstring>, name),
   (std::vector<tlön::interface_member>, members)
 )
 

@@ -216,7 +216,7 @@ namespace tlön
               
               for (int j = 0; j < names.size(); ++j)
               {
-                buffer << indent << indent_char << wformat(L"%1%{%1%}") % names[j];
+                buffer << indent << indent_char << wformat(L"%1%{%1%}") % identifier_helper::get(names[j]);
                 if (!(i + 1 == param_count && j + 1 == names.size()))
                   buffer << ", " << nl;
               }

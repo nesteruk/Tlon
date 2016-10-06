@@ -98,6 +98,7 @@
     <ClInclude Include="parser.hpp" />
     <ClInclude Include="printer.hpp" />
     <ClInclude Include="tlön.h" />
+    <ClInclude Include="vhdl_printer.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="chars.cpp" />
