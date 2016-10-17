@@ -3,6 +3,7 @@
 
 #include "../Compiler/headers.hpp"
 #include "../Compiler/parser.hpp"
+#include "../Compiler/vhdl_printer.hpp"
 using namespace tlön;
 
 #define MAX_LOADSTRING 100
@@ -13,11 +14,21 @@ WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
 WNDPROC oldEditProc;
 
+enum class Language
+{
+  CPlusPlus,
+  VHDL
+};
+
+static Language currentLanguage = Language::CPlusPlus;
+
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void                UpdateOutput();
+
+vector<int> languageMenuItems{ ID_LANGUAGE_CPP,ID_LANGUAGE_VHDL };
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -85,7 +96,10 @@ LRESULT CALLBACK InputEditProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
     if (wp == 0x2A)
     {
       wp = 183;
-    } else if (wp == 0x2D)
+    } 
+    
+    // we are not ready to support minus yet
+    if (wp == 0x2D)
     {
       wp = 8722;
     }
@@ -166,9 +180,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     L"}\r\n\r\n"
     L"interface Demo.SomeInterface\r\n"
     L"{\r\n"
-    L"  add := (a,b:i32, c:string) -> i32;\r\n"
+    L"  add := (a,b:i32, c:string) => i32;\r\n"
     L"  \r\n"
-    L"  tupledemo := (x:(i8,string)) -> (string,u8);\r\n"
+    L"  tupledemo := (x:(i8,string)) => (string,u8);\r\n"
     L"}\r\n");
   UpdateOutput();
 
@@ -180,7 +194,16 @@ void UpdateOutput()
   auto len = GetWindowTextLength(hInput) + 1;
   wstring input(len, 0);
   GetWindowText(hInput, &input[0], len);
-  auto result = parse(input.begin(), input.end());
+  wstring result;
+  switch (currentLanguage)
+  {
+  case Language::CPlusPlus: 
+    result = parse<printers::cpp_printer>(input.begin(), input.end());
+    break;
+  case Language::VHDL:
+    result = parse<printers::vhdl_printer>(input.begin(), input.end());
+    break;
+  }
   SetWindowText(hOutput, result.c_str());
 }
 
@@ -198,9 +221,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       UpdateOutput();
     }
 
+    auto menu = GetMenu(hWnd);
+    auto uncheck_all_languages = [&]()
+    {
+      for (auto i : languageMenuItems)
+        CheckMenuItem(menu, i, FALSE);
+    };
+
+    // disable all
+
     // Parse the menu selections:
     switch (wmId)
     {
+    case ID_LANGUAGE_VHDL:
+      currentLanguage = Language::VHDL;
+      UpdateOutput();
+      uncheck_all_languages();
+      CheckMenuItem(menu, ID_LANGUAGE_VHDL, TRUE);
+      break;
+    case ID_LANGUAGE_CPP:
+      currentLanguage = Language::CPlusPlus;
+      UpdateOutput(); 
+      uncheck_all_languages();
+      CheckMenuItem(menu, ID_LANGUAGE_CPP, TRUE);
+      break;
     case IDM_ABOUT:
       DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
       break;

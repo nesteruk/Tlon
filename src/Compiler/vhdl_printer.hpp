@@ -42,6 +42,7 @@ namespace tlön
 
     inline void vhdl_printer::visit(const file& obj)
     {
+      buffer << "Test";
     }
 
     inline void vhdl_printer::visit(const tuple_signature_element& obj)

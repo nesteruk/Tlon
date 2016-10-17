@@ -74,7 +74,7 @@ namespace tlön
         >> lit(L"(")
         >> -parameter_declaration_rule % ','
         >> lit(L")")
-        //>> lit(L"->") // epic fail if you uncomment this
+        >> lit(L"=>") // epic fail if you uncomment this
         >> type_specification_rule
         >> lit(L"{")
         >> *(assignment_statement_rule)
@@ -86,7 +86,7 @@ namespace tlön
         >> lit(L"(")
         >> -parameter_declaration_rule % ','
         >> lit(L")")
-        >> lit(L"->")
+        >> lit(L"=>") // note the minus here
         >> type_specification_rule
         >> char_(L';');
 
@@ -128,7 +128,7 @@ namespace tlön
   };
 
   // relies on boost fusion also
-  template<typename Iterator>
+  template<typename TLanguagePrinter, typename Iterator>
   wstring parse(Iterator first, Iterator last)
   {
     using spirit::qi::phrase_parse;
@@ -138,8 +138,7 @@ namespace tlön
     auto b = phrase_parse(first, last, fp, space, f);
     if (b)
     {
-      printers::cpp_printer p;
-      return p.pretty_print(f);
+      return TLanguagePrinter{}.pretty_print(f);
     }
     return wstring(L"FAIL");
   }

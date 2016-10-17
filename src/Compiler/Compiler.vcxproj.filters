@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="ast.hpp" />
-    <ClInclude Include="parser.hpp" />
     <ClInclude Include="printer.hpp">
       <Filter>printers</Filter>
     </ClInclude>
@@ -15,6 +14,7 @@
     <ClInclude Include="vhdl_printer.hpp">
       <Filter>printers</Filter>
     </ClInclude>
+    <ClInclude Include="parser.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />
