@@ -8,6 +8,34 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
+      map<wstring, wstring> known_types{
+        {L"i8", L"int8_t"},
+        {L"u8", L"uint8_t"},
+        {L"i16", L"int16_t"},
+        {L"u16", L"uint16_t"},
+        {L"i32", L"int32_t"},
+        {L"u32", L"uint32_t"},
+        {L"i64", L"int64_t"},
+        {L"u64", L"uint64_t"},
+        {L"f32", L"float"},
+        {L"f64", L"double"},
+        {L"isize", L"int"},
+        {L"usize", L"unsigned int"},
+        {L"string", L"std::wstring"},
+
+        // individual bit represented as a boolean
+        {L"bit", L"bool"}
+      };
+
+
+    protected:
+      wstring type_name(const wstring& tlon_type_name) override
+      {
+        auto it = known_types.find(tlon_type_name);
+        return it == known_types.end() ? tlon_type_name : known_types[tlon_type_name];
+      }
+
+    public:
       static wstring identifier(const wstring& name)
       {
         return identifier_helper::get(name);
@@ -78,9 +106,15 @@ namespace tlön
         }
       }
 
+
+      void visit(const basic_type& obj) override
+      {
+        buffer << type_name(obj.name);
+      }
+
       void visit(const tuple_signature_element& obj) override
       {
-        buffer << obj.type;
+        visit(obj.type);
       }
 
       void visit(const tuple_signature& obj) override
@@ -118,7 +152,7 @@ namespace tlön
       template<typename T>
       struct SymbolSearcher
       {
-        SymbolSearcher(T searchFor, wstring& result) 
+        SymbolSearcher(T searchFor, wstring& result)
           : _sought(searchFor), _found(result)
         {
         }
@@ -153,10 +187,10 @@ namespace tlön
           auto name = identifier(obj.names[i]);
 
           if (use_const_ref) buffer << "const ";
-          
+
           apply_visitor(renderer{ *this }, obj.type);
           //buffer << obj.type;
-          
+
           if (use_const_ref) buffer << "&";
           buffer << " " << name;
           if (i + 1 != obj.names.size())
@@ -187,7 +221,7 @@ namespace tlön
         buffer << ") = 0;" << nl;
       }
 
-      void visit(const class_declaration& obj) override 
+      void visit(const class_declaration& obj) override
       {
         auto ns = name_space(obj.name);
         auto name = identifier(*obj.name.rbegin());
@@ -213,7 +247,7 @@ namespace tlön
             {
               auto& p = obj.primary_constructor_parameters[i];
               auto& names = p.names;
-              
+
               for (int j = 0; j < names.size(); ++j)
               {
                 buffer << indent << indent_char << wformat(L"%1%{%1%}") % identifier_helper::get(names[j]);
@@ -241,7 +275,7 @@ namespace tlön
         {
           auto s = scope(true);
 
-          buffer << indent << "virtual ~" << name 
+          buffer << indent << "virtual ~" << name
             << "() = default;" << nl;
 
           for (auto& item : obj.members)
@@ -250,10 +284,10 @@ namespace tlön
         buffer << " /* " << name << " */" << nl;
       }
 
-      void visit(const file& obj) override 
+      void visit(const file& obj) override
       {
         buffer << indent << "#include \"tlön.h\"" << nl;
-        auto r = renderer{*this};
+        auto r = renderer{ *this };
         for (auto& item : obj.declarations)
         {
           apply_visitor(r, item);

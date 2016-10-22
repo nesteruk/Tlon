@@ -39,9 +39,8 @@ namespace tlön
           | char_(L'⁰'));
 
       basic_type_rule %=
-        numeric_types
-        | known_types
-        | identifier_rule;
+        // it was a nice idea, but having a c++ specific table is stupid
+        identifier_rule;
 
       type_specification_rule %=
         basic_type_rule | tuple_signature_rule;
@@ -117,7 +116,7 @@ namespace tlön
     qi::rule<Iterator, property(), space_type> property_rule;
     qi::rule<Iterator, type_specification(), space_type> type_specification_rule;
     qi::rule<Iterator, wstring(), space_type> identifier_rule;
-    qi::rule<Iterator, wstring(), space_type> basic_type_rule;
+    qi::rule<Iterator, basic_type(), space_type> basic_type_rule;
     qi::rule<Iterator, tuple_signature_element(), space_type> tuple_signature_element_rule;
     qi::rule<Iterator, tuple_signature(), space_type> tuple_signature_rule;
     qi::rule<Iterator, parameter_declaration(), space_type> parameter_declaration_rule;

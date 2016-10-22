@@ -20,6 +20,8 @@ namespace tlön
       wstring indent;
       const wchar_t* nl{ L"\r\n" };
 
+      virtual wstring type_name(const wstring& tlon_type_name) = 0;
+
       /// Reduced indent, usable for public: and similar.
       wstring reduced_indent() const
       {

@@ -12,6 +12,7 @@ namespace tlön
   struct assignment_statement;
   struct property;
   struct function_body;
+  struct basic_type;
 
   struct ast_element_visitor
   {
@@ -27,34 +28,8 @@ namespace tlön
     virtual void visit(const tuple_signature& obj) = 0;
     virtual void visit(const property& obj) = 0;
     virtual void visit(const function_body& obj) = 0;
+    virtual void visit(const basic_type& obj) = 0;
   };
-
-  struct numeric_types_ : spirit::qi::symbols<wchar_t, wstring>
-  {
-    numeric_types_()
-    {
-      add(L"i8", L"int8_t");
-      add(L"u8", L"uint8_t");
-      add(L"i16", L"int16_t");
-      add(L"u16", L"uint16_t");
-      add(L"i32", L"int32_t");
-      add(L"u32", L"uint32_t");
-      add(L"i64", L"int64_t");
-      add(L"u64", L"uint64_t");
-      add(L"f32", L"float");
-      add(L"f64", L"double");
-      add(L"isize", L"int");
-      add(L"usize", L"unsigned int");
-    }
-  } numeric_types;
-
-  struct known_types_ : spirit::qi::symbols<wchar_t, wstring>
-  {
-    known_types_()
-    {
-      add(L"string", L"std::wstring");
-    }
-  } known_types;
 
   struct ast_element
   {
@@ -62,10 +37,20 @@ namespace tlön
     virtual void accept(ast_element_visitor& visitor) = 0;
   };
 
+  struct basic_type : ast_element
+  {
+    wstring name;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
+
   struct tuple_signature_element : ast_element
   {
     //optional<wstring> name;
-    wstring type;
+    basic_type type;
 
     void accept(ast_element_visitor& visitor) override
     {
@@ -83,7 +68,7 @@ namespace tlön
     }
   };
 
-  typedef variant<wstring, tuple_signature> type_specification;
+  typedef variant<basic_type, tuple_signature> type_specification;
 
   struct assignment_statement : ast_element
   {
@@ -184,6 +169,11 @@ namespace tlön
 }
 
 BOOST_FUSION_ADAPT_STRUCT(
+  tlön::basic_type,
+  (std::wstring, name)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
   tlön::assignment_statement,
   (std::vector<std::wstring>, names),
   (std::wstring, value)
@@ -199,7 +189,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::tuple_signature_element,
   //(boost::optional<std::wstring>, name),
-  (std::wstring, type)
+  (tlön::basic_type, type)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
