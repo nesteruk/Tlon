@@ -64,6 +64,12 @@ namespace tlön
         buffer << ")" << nl;
         {
           const auto& _ = scope();
+
+          for (auto& st : obj.statements)
+          {
+            apply_visitor(renderer{ *this }, st);
+            buffer << nl;
+          }
         }
       }
 
@@ -174,6 +180,10 @@ namespace tlön
 
       void visit(const assignment_statement& obj) override
       {
+        for (const auto& name : obj.names)
+        {
+          buffer << indent << name << " = " << obj.value << ";";
+        }
       }
 
       void visit(const parameter_declaration& obj) override

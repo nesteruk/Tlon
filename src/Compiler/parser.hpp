@@ -73,10 +73,10 @@ namespace tlön
         >> lit(L"(")
         >> -parameter_declaration_rule % ','
         >> lit(L")")
-        >> lit(L"=>") // epic fail if you uncomment this
+        >> lit(L"=>")
         >> type_specification_rule
         >> lit(L"{")
-        >> *(assignment_statement_rule)
+        >> *(statement_rule)
         >> lit(L"}");
 
       function_signature_rule %=
@@ -103,14 +103,19 @@ namespace tlön
         >> "}";
 
       assignment_statement_rule %=
-        +identifier_rule % ","
+        identifier_rule % ","
         >> lit(L"<-")
-        >> identifier_rule;
+        >> identifier_rule
+        >> lit(L";");
+
+      statement_rule %=
+        assignment_statement_rule;
 
       file_rule %= spirit::eps >>
         *(interface_declaration_rule | class_declaration_rule);
     }
 
+    qi::rule<Iterator, statement(), space_type> statement_rule;
     qi::rule<Iterator, assignment_statement(), space_type> assignment_statement_rule;
     qi::rule<Iterator, function_body(), space_type> function_body_rule;
     qi::rule<Iterator, property(), space_type> property_rule;
