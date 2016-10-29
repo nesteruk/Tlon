@@ -7,6 +7,8 @@ Tlön is a programming language transpiled into Modern C++. These are the key go
 * Provide a sensible API over Standard Library/STL.
 * Other lofty goals :)
 
+For a more lively demonstration, watch [this video](https://www.youtube.com/watch?v=LmRTPweKGmQ).
+
 The following is an approximate featureset with explanations *why* those features are in there.
 
 ## Front End
