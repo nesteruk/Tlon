@@ -101,7 +101,6 @@
     <ClInclude Include="vhdl_printer.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="chars.cpp" />
     <ClCompile Include="compiler.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -72,6 +72,36 @@ namespace tlön
           }
         }
       }
+      
+      void visit(const anonymous_function_signature& obj) override
+      {
+        visit(obj, {});
+      }
+
+      void visit(const anonymous_function_signature& obj, optional<wstring> name)
+      {
+        apply_visitor(renderer{ *this }, obj.return_type);
+
+        if (name)
+          buffer << " " << name.get();
+        
+        buffer << "(";
+
+        // process arguments
+        for (int pi = 0; pi < obj.parameters.size(); ++pi)
+        {
+          auto& p = obj.parameters[pi];
+
+          // process this parameter
+          visit(p);
+
+          // comma required unless this is last
+          if (pi + 1 != obj.parameters.size())
+            buffer << ", ";
+        }
+
+        buffer << ")";
+      }
 
       void visit(const property& obj) override
       {
@@ -211,24 +241,8 @@ namespace tlön
       void visit(const interface_function_signature& obj) override
       {
         buffer << indent << "virtual ";
-
-        apply_visitor(renderer{ *this }, obj.return_type);
-        buffer << " " << obj.name << "(";
-
-        // process arguments
-        for (int pi = 0; pi < obj.parameters.size(); ++pi)
-        {
-          auto& p = obj.parameters[pi];
-
-          // process this parameter
-          visit(p);
-
-          // comma required unless this is last
-          if (pi + 1 != obj.parameters.size())
-            buffer << ", ";
-        }
-
-        buffer << ") = 0;" << nl;
+        visit(obj.signature, obj.name);
+        buffer << " = 0;" << nl;
       }
 
       void visit(const class_declaration& obj) override

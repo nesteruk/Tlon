@@ -20,6 +20,7 @@ namespace tlön
       void visit(const function_body& obj) override;
 
 
+      void visit(const anonymous_function_signature& obj) override;
       void visit(const basic_type& obj) override;
       map<wstring, wstring> known_types{
         {L"i32", L"integer"}
@@ -156,6 +157,10 @@ namespace tlön
     }
 
     inline void vhdl_printer::visit(const function_body& obj)
+    {
+    }
+
+    inline void vhdl_printer::visit(const anonymous_function_signature& obj)
     {
     }
 

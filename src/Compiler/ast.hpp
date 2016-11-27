@@ -2,6 +2,7 @@
 
 namespace tlön
 {
+  struct anonymous_function_signature;
   struct tuple_signature;
   struct tuple_signature_element;
   struct class_declaration;
@@ -29,6 +30,7 @@ namespace tlön
     virtual void visit(const property& obj) = 0;
     virtual void visit(const function_body& obj) = 0;
     virtual void visit(const basic_type& obj) = 0;
+    virtual void visit(const anonymous_function_signature& obj) = 0;
   };
 
   struct ast_element
@@ -93,11 +95,20 @@ namespace tlön
     }
   };
 
+  struct anonymous_function_signature : ast_element
+  {
+    vector<parameter_declaration> parameters;
+    type_specification return_type;
+
+    void accept(ast_element_visitor& visitor) override {
+      visitor.visit(*this);
+    }
+  };
+
   struct interface_function_signature : ast_element
   {
     wstring name;
-    vector<parameter_declaration> parameters;
-    type_specification return_type;
+    anonymous_function_signature signature;
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
@@ -205,10 +216,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-  tlön::interface_function_signature,
-  (std::wstring, name),
+  tlön::anonymous_function_signature,
   (std::vector<tlön::parameter_declaration>, parameters),
   (tlön::type_specification, return_type)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::interface_function_signature,
+  (std::wstring, name),
+  (tlön::anonymous_function_signature, signature)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
