@@ -46,7 +46,8 @@ namespace tlön
         basic_type_rule | tuple_signature_rule;
 
       tuple_signature_element_rule %=
-        basic_type_rule;
+        -qi::hold[identifier_rule >> lit(":")]
+        >> basic_type_rule;
 
       property_rule %=
         identifier_rule % ','

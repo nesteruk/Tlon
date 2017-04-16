@@ -26,7 +26,6 @@ namespace tlön
         {L"i32", L"integer"}
       };
 
-
     protected:
       /**
        * \brief Gets you the VHDL type, supporting arbitrary bitness.
@@ -45,20 +44,20 @@ namespace tlön
           try
           {
             auto count = lexical_cast<int>(tlon_type_name.substr(1));
-            wostringstream buffer;
-            buffer << "integer range ";
+            wostringstream os;
+            os << "integer range ";
             if (tlon_type_name[0] == L'u')
             {
               // 0 to 2^n
-              buffer << "0 to " << (1 << count);
+              os << "0 to " << (1 << count);
             } 
             else
             {
               // -2^(n-1) to 2^(n-1) - 1
-              buffer << "-" << (1 << (count - 1)) << " to "
+              os << "-" << (1 << (count - 1)) << " to "
                 << (1 << (count - 1)) - 1;
             }
-            return buffer.str();
+            return os.str();
           } 
           catch (bad_cast)
           {

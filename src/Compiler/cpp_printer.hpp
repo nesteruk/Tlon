@@ -150,6 +150,12 @@ namespace tlön
 
       void visit(const tuple_signature_element& obj) override
       {
+
+        // if the tuple has a name, emit it in comments
+        if (obj.name)
+        {
+          buffer << "/*" << obj.name.value() << "*/";
+        }
         visit(obj.type);
       }
 
@@ -229,7 +235,6 @@ namespace tlön
           if (use_const_ref) buffer << "const ";
 
           apply_visitor(renderer{ *this }, obj.type);
-          //buffer << obj.type;
 
           if (use_const_ref) buffer << "&";
           buffer << " " << name;

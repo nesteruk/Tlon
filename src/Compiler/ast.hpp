@@ -51,7 +51,7 @@ namespace tlön
 
   struct tuple_signature_element : ast_element
   {
-    //optional<wstring> name;
+    optional<wstring> name;
     basic_type type;
 
     void accept(ast_element_visitor& visitor) override
@@ -199,7 +199,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::tuple_signature_element,
-  //(boost::optional<std::wstring>, name),
+  (boost::optional<std::wstring>, name),
   (tlön::basic_type, type)
 )
 
