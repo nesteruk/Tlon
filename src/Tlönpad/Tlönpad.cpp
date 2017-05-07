@@ -28,7 +28,9 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 void                UpdateOutput();
 
-vector<int> languageMenuItems{ ID_LANGUAGE_CPP,ID_LANGUAGE_VHDL };
+vector<int> languageMenuItems{ 
+  ID_LANGUAGE_CPP,ID_LANGUAGE_VHDL 
+};
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -225,7 +227,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     auto uncheck_all_languages = [&]()
     {
       for (auto i : languageMenuItems)
-        CheckMenuItem(menu, i, FALSE);
+        CheckMenuItem(menu, i, MF_UNCHECKED);
     };
 
     // disable all
@@ -237,13 +239,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       currentLanguage = Language::VHDL;
       UpdateOutput();
       uncheck_all_languages();
-      CheckMenuItem(menu, ID_LANGUAGE_VHDL, TRUE);
+      CheckMenuItem(menu, ID_LANGUAGE_VHDL, MF_CHECKED);
       break;
     case ID_LANGUAGE_CPP:
       currentLanguage = Language::CPlusPlus;
       UpdateOutput(); 
       uncheck_all_languages();
-      CheckMenuItem(menu, ID_LANGUAGE_CPP, TRUE);
+      CheckMenuItem(menu, ID_LANGUAGE_CPP, MF_CHECKED);
       break;
     case IDM_ABOUT:
       DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
