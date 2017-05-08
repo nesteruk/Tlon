@@ -243,7 +243,7 @@ namespace tlön
         }
       }
 
-      void visit(const interface_function_signature& obj) override
+      void visit(const function_signature& obj) override
       {
         buffer << indent << "virtual ";
         visit(obj.signature, obj.name);
@@ -254,7 +254,9 @@ namespace tlön
       {
         auto ns = name_space(obj.name);
         auto name = identifier(*obj.name.rbegin());
-        buffer << indent << "class " << name << nl;
+
+        // prepended by the abstract comment if necessary
+        buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << name << nl;
         {
           const auto& s = scope(true);
           buffer << reduced_indent() << "public:" << nl;
@@ -285,6 +287,15 @@ namespace tlön
               }
             }
             buffer << " {}" << nl;
+
+            // generate a property for each primary constructor parameter
+            for (auto& p : obj.primary_constructor_parameters)
+            {
+              property prop;
+              prop.names = p.names;
+              prop.type = p.type;
+              visit(prop);
+            }
 
             buffer << nl;
           }

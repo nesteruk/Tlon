@@ -8,7 +8,7 @@ namespace tlön
   struct class_declaration;
   struct file;
   struct interface_declaration;
-  struct interface_function_signature;
+  struct function_signature;
   struct parameter_declaration;
   struct assignment_statement;
   struct property;
@@ -21,7 +21,7 @@ namespace tlön
 
     virtual void visit(const assignment_statement& obj) = 0;
     virtual void visit(const parameter_declaration& obj) = 0;
-    virtual void visit(const interface_function_signature& obj) = 0;
+    virtual void visit(const function_signature& obj) = 0;
     virtual void visit(const interface_declaration& obj) = 0;
     virtual void visit(const class_declaration& obj) = 0;
     virtual void visit(const file& obj) = 0;
@@ -105,7 +105,7 @@ namespace tlön
     }
   };
 
-  struct interface_function_signature : ast_element
+  struct function_signature : ast_element
   {
     wstring name;
     anonymous_function_signature signature;
@@ -115,7 +115,7 @@ namespace tlön
     }
   };
 
-  typedef variant<interface_function_signature> interface_member;
+  typedef variant<function_signature> interface_member;
 
   struct function_body : ast_element
   {
@@ -153,7 +153,7 @@ namespace tlön
     }
   };
 
-  typedef variant<function_body, property> class_member;
+  typedef variant<function_body, property, function_signature> class_member;
 
   struct class_declaration : ast_element
   {
@@ -163,6 +163,15 @@ namespace tlön
 
     void accept(ast_element_visitor& visitor) override {
       visitor.visit(*this);
+    }
+
+    bool is_abstract()
+    {
+      bool result = false;
+      for (const auto& m : members)
+        if (m.type() == typeid(function_signature))
+          result = true;
+      return result;
     }
   };
 
@@ -222,7 +231,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 )
 
 BOOST_FUSION_ADAPT_STRUCT(
-  tlön::interface_function_signature,
+  tlön::function_signature,
   (std::wstring, name),
   (tlön::anonymous_function_signature, signature)
 )

@@ -10,7 +10,7 @@ namespace tlön
     {
       void visit(const assignment_statement& obj) override;
       void visit(const parameter_declaration& obj) override;
-      void visit(const interface_function_signature& obj) override;
+      void visit(const function_signature& obj) override;
       void visit(const interface_declaration& obj) override;
       void visit(const class_declaration& obj) override;
       void visit(const file& obj) override;
@@ -95,7 +95,7 @@ namespace tlön
     {
     }
 
-    inline void vhdl_printer::visit(const interface_function_signature& obj)
+    inline void vhdl_printer::visit(const function_signature& obj)
     {
     }
 

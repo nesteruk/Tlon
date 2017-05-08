@@ -88,7 +88,7 @@ namespace tlön
         >> type_specification_rule
         >> char_(L';');
 
-      interface_function_signature_rule %=
+      function_signature_rule %=
         identifier_rule
         >> lit(L":=")
         >> anonymous_function_signature_rule;
@@ -96,14 +96,14 @@ namespace tlön
       interface_declaration_rule %=
         lit(L"interface ") >> +(alnum) % '.'
         >> "{"
-        >> *interface_function_signature_rule
+        >> *function_signature_rule
         >> "}";
 
       class_declaration_rule %=
         lit(L"class ") >> +(alnum) % '.'
         >> -(lit(L"(") >> -parameter_declaration_rule % ',' >> lit(")"))
         >> "{"
-        >> *(function_body_rule | property_rule)
+        >> *(function_body_rule | property_rule | function_signature_rule)
         >> "}";
 
       assignment_statement_rule %=
@@ -130,7 +130,7 @@ namespace tlön
     qi::rule<Iterator, tuple_signature_element(), space_type> tuple_signature_element_rule;
     qi::rule<Iterator, tuple_signature(), space_type> tuple_signature_rule;
     qi::rule<Iterator, parameter_declaration(), space_type> parameter_declaration_rule;
-    qi::rule<Iterator, interface_function_signature(), space_type> interface_function_signature_rule;
+    qi::rule<Iterator, function_signature(), space_type> function_signature_rule;
     qi::rule<Iterator, interface_declaration(), space_type> interface_declaration_rule;
     qi::rule<Iterator, class_declaration(), space_type> class_declaration_rule;
     qi::rule<Iterator, file(), space_type> file_rule;
