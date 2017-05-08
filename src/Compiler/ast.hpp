@@ -165,7 +165,7 @@ namespace tlön
       visitor.visit(*this);
     }
 
-    bool is_abstract()
+    bool is_abstract() const
     {
       bool result = false;
       for (const auto& m : members)

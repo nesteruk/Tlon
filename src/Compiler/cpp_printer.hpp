@@ -256,7 +256,12 @@ namespace tlön
         auto name = identifier(*obj.name.rbegin());
 
         // prepended by the abstract comment if necessary
-        buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << name << nl;
+        buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << name;
+
+        // process inheritors; at the very least, there's tlön::object
+        buffer << " : tlön::object";
+
+        buffer << nl;
         {
           const auto& s = scope(true);
           buffer << reduced_indent() << "public:" << nl;
