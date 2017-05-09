@@ -145,7 +145,19 @@ namespace tlön
 
       void visit(const basic_type& obj) override
       {
-        buffer << type_name(obj.name);
+        // if the type has a qualified path, there isn't much we can do about it
+        if (obj.path_to_type.size() > 0)
+        {
+          for (auto& t : obj.path_to_type)
+          {
+            buffer << t << "::";
+          }
+          buffer << obj.name;
+        }
+        else {
+          // this can be a singular type so we do lookup
+          buffer << type_name(obj.name);
+        }
       }
 
       void visit(const tuple_signature_element& obj) override

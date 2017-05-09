@@ -39,8 +39,9 @@ namespace tlön
           | char_(L'⁰'));
 
       basic_type_rule %=
+        -qi::hold[identifier_rule >> lit(L".")]
         // it was a nice idea, but having a c++ specific table is stupid
-        identifier_rule;
+        >> identifier_rule;
 
       type_specification_rule %=
         basic_type_rule | tuple_signature_rule;

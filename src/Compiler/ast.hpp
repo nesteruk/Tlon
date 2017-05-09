@@ -41,6 +41,7 @@ namespace tlön
 
   struct basic_type : ast_element
   {
+    vector<wstring> path_to_type;
     wstring name;
 
     void accept(ast_element_visitor& visitor) override
@@ -190,6 +191,7 @@ namespace tlön
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::basic_type,
+  (std::vector<std::wstring>, path_to_type),
   (std::wstring, name)
 )
 
