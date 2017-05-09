@@ -28,9 +28,9 @@ namespace tlön
 
     };
 
-    struct class_info
+    struct type_info
     {
-      const wchar_t* namespace_name;
+      const wchar_t* namespace;
       const wchar_t* name;
 
       std::vector<method_info> methods;

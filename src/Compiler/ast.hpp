@@ -134,6 +134,7 @@ namespace tlön
   struct interface_declaration : ast_element
   {
     vector<wstring> name;
+    vector<basic_type> parents;
     vector<interface_member> members;
 
     void accept(ast_element_visitor& visitor) override
@@ -256,6 +257,7 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::interface_declaration,
   (std::vector<std::wstring>, name),
+  (std::vector<tlön::basic_type>, parents),
   (std::vector<tlön::interface_member>, members)
 )
 

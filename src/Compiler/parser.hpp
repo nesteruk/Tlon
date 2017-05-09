@@ -96,6 +96,7 @@ namespace tlön
 
       interface_declaration_rule %=
         lit(L"interface ") >> +(alnum) % '.'
+        >> -(':' >> basic_type_rule % ',')
         >> "{"
         >> *function_signature_rule
         >> "}";
