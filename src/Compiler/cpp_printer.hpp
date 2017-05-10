@@ -142,7 +142,6 @@ namespace tlön
         }
       }
 
-
       void visit(const basic_type& obj) override
       {
         // if the type has a qualified path, there isn't much we can do about it
@@ -267,25 +266,11 @@ namespace tlön
         // emit reflection
         buffer << reduced_indent() << "public:" << nl;
 
-        buffer << indent << "static tlön::reflection::type_info type_info" << nl;
-        {
-          const auto& _ = scope(true);
-          
-          // emit namespace name
-          buffer << indent << "L\" ??? \"," << nl
-            << indent << "L\"" << identifier(*obj.name.rbegin()) << "\"," << nl;
+        buffer << indent << 
+          "const tlön::reflection::type_info& get_type_info() const override { return {}; }" << nl;
 
-          // scope for methods
-          {
-            const auto& _2 = scope(false);
-
-            for (const auto& m : obj.members)
-            {
-              
-            }
-          }
-          buffer << "," << nl;
-        }
+        buffer << indent <<
+          "static tlön::reflection::type_info type_info;";
       }
 
       void visit(const class_declaration& obj) override
@@ -297,7 +282,7 @@ namespace tlön
         buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << name;
 
         // process inheritors; at the very least, there's tlön::object
-        buffer << " : tlön::object";
+        buffer << " : public tlön::object<" << name << ">";
 
         buffer << nl;
         {
@@ -351,6 +336,28 @@ namespace tlön
           emit_automatic_class_members(obj);
         } // end of class scope
         buffer << " /* " << name << " */" << nl;
+
+        // emit out-of-class reflection members
+        buffer << indent << L"tlön::reflection::type_info ChangeMe::type_info =" << nl
+          << L"tlön::reflection::type_info" << nl;
+        {
+          const auto& _ = scope(true);
+
+          // namespace name
+          buffer << L"L\"" << ns.str() << L"\"," << nl;
+
+          // name
+          buffer << L"L\"" << name << L"\"," << nl;
+
+          // scope for methods
+          {
+            const auto& ms = scope();
+          }
+          buffer << ",";
+          {
+            const auto& ps = scope();
+          }
+        }
       }
 
 
@@ -359,7 +366,7 @@ namespace tlön
       {
         auto ns = name_space(obj.name);
         auto name = identifier(*obj.name.rbegin());
-        buffer << indent << "class " << name << " : tlön::object";
+        buffer << indent << "class " << name << " : public tlön::object<" << name << ">";
 
         for (auto& parent : obj.parents)
         {

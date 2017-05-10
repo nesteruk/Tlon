@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler.cpp" />
+    <ClCompile Include="headers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="printers">

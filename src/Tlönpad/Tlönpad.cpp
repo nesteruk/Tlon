@@ -250,6 +250,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case IDM_ABOUT:
       DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
       break;
+    case ID_EDIT_COPYOUTPUT:
+    {
+      wchar_t buffer[4096] = {0};
+      GetWindowText(hOutput, buffer, 4096);
+      wstring s(buffer);
+      int count = 2*(s.length() + 1);
+      HGLOBAL hmem = GlobalAlloc(GMEM_MOVEABLE, count);
+      memcpy(GlobalLock(hmem), s.data(), count);
+      GlobalUnlock(hmem);
+      OpenClipboard(nullptr);
+      EmptyClipboard();
+      SetClipboardData(CF_UNICODETEXT, hmem);
+      CloseClipboard();
+    }
+      break;
     case IDM_EXIT:
       DestroyWindow(hWnd);
       break;

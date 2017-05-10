@@ -77,6 +77,19 @@ namespace tlön
             p.buffer << p.indent << L"} /* " << name[i] << L" */" << p.nl;
           }
         }
+
+        wstring str() const
+        {
+          wostringstream oss;
+          for (int i = 0; i < name.size()-1; ++i)
+          {
+            auto& n = name[i];
+            oss << n;
+            if (i + 1 != name.size() - 1)
+              oss << L"."; // confusing what to put here
+          }
+          return oss.str();
+        }
       };
 
       namespace_token name_space(const vector<wstring>& name)
