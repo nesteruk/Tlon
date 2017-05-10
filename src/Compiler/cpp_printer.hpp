@@ -35,6 +35,21 @@ namespace tlön
         return it == known_types.end() ? tlon_type_name : known_types[tlon_type_name];
       }
 
+      void emit_reflection_info(const property& p) 
+      {
+        buffer << "property_info{}";
+      }
+
+      void emit_reflection_info(const function_body& fb)
+      {
+        buffer << "method_info{}";
+      }
+
+      void emit_reflection_info(const function_signature& fs)
+      {
+        // also emit method_info ...
+      }
+
     public:
       static wstring identifier(const wstring& name)
       {
@@ -68,7 +83,7 @@ namespace tlön
           for (auto& st : obj.statements)
           {
             apply_visitor(renderer{ *this }, st);
-            buffer << nl;
+            buffer << "," << nl;
           }
         }
       }
@@ -183,6 +198,28 @@ namespace tlön
         buffer << ">";
       }
 
+      //! Emits reflection data about members
+      struct reflection_renderer : static_visitor<>
+      {
+        cpp_printer& printer;
+
+        explicit reflection_renderer(cpp_printer& printer) : printer(printer)
+        {
+        }
+
+        void operator()(const function_body& fb) const
+        {
+          printer.buffer << printer.indent << "method_info{}";
+        }
+
+        void operator()(const property& p) const
+        {
+          printer.buffer << printer.indent << "property_info{}";
+        }
+
+        void operator()(const function_signature& s) const {}
+      };
+
       struct renderer : static_visitor<>
       {
         cpp_printer& printer;
@@ -267,10 +304,11 @@ namespace tlön
         buffer << reduced_indent() << "public:" << nl;
 
         buffer << indent << 
-          "const tlön::reflection::type_info& get_type_info() const override { return {}; }" << nl;
+          "const tlön::reflection::type_info& get_type_info() const override"
+          << nl << "{ return this->type_info; }" << nl;
 
         buffer << indent <<
-          "static tlön::reflection::type_info type_info;";
+          "static tlön::reflection::type_info type_info;" << nl;
       }
 
       void visit(const class_declaration& obj) override
@@ -349,18 +387,31 @@ namespace tlön
           // name
           buffer << L"L\"" << name << L"\"," << nl;
 
-          // scope for methods
+          
           {
+            // scope for methods
             const auto& ms = scope();
+            for (auto t : obj.members)
+              if (t.type() == typeid(function_body)) {
+                apply_visitor(reflection_renderer{ *this }, t);
+                buffer << "," << nl;
+              }
+            backtrack(1, true);
           }
           buffer << ",";
           {
+            // scope for properties
             const auto& ps = scope();
+          
+            for (auto t : obj.members)
+              if (t.type() == typeid(property)) {
+                apply_visitor(reflection_renderer{ *this }, t);
+                buffer << "," << nl;
+              }
+            backtrack(1, true);
           }
         }
       }
-
-
 
       void visit(const interface_declaration& obj) override
       {

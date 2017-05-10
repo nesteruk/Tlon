@@ -14,4 +14,6 @@ using namespace std;
 #include <boost/program_options.hpp>
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/for_each.hpp>
 using namespace boost;

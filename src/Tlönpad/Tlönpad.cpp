@@ -169,7 +169,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
   if (!hOutput) return FALSE;
 
-  auto hFont = CreateFont(-48, 0, 0, 0, FW_DONTCARE, 0,
+  auto hFont = CreateFont(-18, 0, 0, 0, FW_DONTCARE, 0,
     0, 0, ANSI_CHARSET, 0, 0, 0, FIXED_PITCH, TEXT("Consolas"));
   SendMessage(hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
   SendMessage(hOutput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
@@ -255,7 +255,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       wchar_t buffer[4096] = {0};
       GetWindowText(hOutput, buffer, 4096);
       wstring s(buffer);
-      int count = 2*(s.length() + 1);
+      size_t count = 2*(s.length() + 1);
       HGLOBAL hmem = GlobalAlloc(GMEM_MOVEABLE, count);
       memcpy(GlobalLock(hmem), s.data(), count);
       GlobalUnlock(hmem);

@@ -15,6 +15,12 @@ namespace tlön
         visit(f);
         return buffer.str();
       }
+      void backtrack(size_t char_count, bool remove_newline = false)
+      {
+        size_t total_count = char_count + (remove_newline ? wcslen(nl) : 0);
+        // hack: rather crude way of doing things
+        buffer.seekp(-total_count, ios_base::end);
+      }
     protected:
       wostringstream buffer;
       wstring indent;
