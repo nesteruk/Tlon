@@ -54,7 +54,11 @@ namespace tlön
         identifier_rule % ','
         >> lit(L":")
         >> type_specification_rule
-        >> -(lit(L":=") >> +(alnum - ';'))
+        >> -(
+             (L":=" >> spirit::attr(false) 
+              | 
+              L"≡" >> spirit::attr(true)
+            ) >> +(alnum - ';'))
         >> lit(L";");
 
       tuple_signature_rule %=
@@ -67,7 +71,8 @@ namespace tlön
         spirit::eps
         >> identifier_rule % ','
         >> lit(L":")
-        >> type_specification_rule;
+        >> type_specification_rule
+        >> -(L":=" >> +(alnum));
 
       function_body_rule %=
         identifier_rule
@@ -82,7 +87,7 @@ namespace tlön
         >> lit(L"}");
 
       anonymous_function_signature_rule %=
-        lit(L"(")
+        L"("
         >> -parameter_declaration_rule % ','
         >> lit(L")")
         >> lit(L"=>") // note the minus here

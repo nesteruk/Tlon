@@ -13,6 +13,7 @@ HWND hInput, hOutput;
 WCHAR szTitle[MAX_LOADSTRING];
 WCHAR szWindowClass[MAX_LOADSTRING];
 WNDPROC oldEditProc;
+int editFontSize{ 38 };
 
 enum class Language
 {
@@ -87,6 +88,14 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
   return RegisterClassExW(&wcex);
 }
 
+void UpdateEditorFont()
+{
+  auto hFont = CreateFont(-editFontSize, 0, 0, 0, FW_DONTCARE, 0,
+    0, 0, ANSI_CHARSET, 0, 0, 0, FIXED_PITCH, TEXT("Consolas"));
+  SendMessage(hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
+  SendMessage(hOutput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
+}
+
 LRESULT CALLBACK InputEditProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
   static bool ctrl{ false };
@@ -108,9 +117,15 @@ LRESULT CALLBACK InputEditProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
   }
   if (msg == WM_KEYDOWN)
   {
-    if (wp == 187 /* = */ && ctrl)
+    if (wp == 187 /* = */)
     {
-      SendMessage(hwnd, WM_CHAR, 8801 /* ≡ */, 0);
+      if (ctrl)
+        SendMessage(hwnd, WM_CHAR, 8801 /* ≡ */, 0);
+      else if (alt)
+      {
+        editFontSize += 2;
+        UpdateEditorFont();
+      }
     }
     else if (wp == 48 /* 0 */ && ctrl)
     {
@@ -169,10 +184,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
   if (!hOutput) return FALSE;
 
-  auto hFont = CreateFont(-18, 0, 0, 0, FW_DONTCARE, 0,
-    0, 0, ANSI_CHARSET, 0, 0, 0, FIXED_PITCH, TEXT("Consolas"));
-  SendMessage(hInput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
-  SendMessage(hOutput, WM_SETFONT, reinterpret_cast<WPARAM>(hFont), 0);
+  UpdateEditorFont();
 
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
@@ -292,6 +304,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   case WM_DESTROY:
     PostQuitMessage(0);
     break;
+  case WM_SYSCOMMAND:
+    // prevent default Alt behavior
+    if (wParam == SC_KEYMENU && (lParam >> 16) <= 0) return 0;
+    else return DefWindowProc(hWnd, message, wParam, lParam);
   default:
     return DefWindowProc(hWnd, message, wParam, lParam);
   }

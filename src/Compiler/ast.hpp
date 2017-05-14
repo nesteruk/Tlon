@@ -147,8 +147,9 @@ namespace tlön
   {
     vector<wstring> names;
     type_specification type;
+    bool is_constant{ false };
     wstring default_value;
-
+    
     void accept(ast_element_visitor& visitor) override
     {
       visitor.visit(*this);
@@ -206,6 +207,7 @@ BOOST_FUSION_ADAPT_STRUCT(
   tlön::property,
   (std::vector<std::wstring>, names),
   (tlön::type_specification, type),
+  (bool, is_constant),
   (std::wstring, default_value)
 )
 

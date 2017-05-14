@@ -26,7 +26,13 @@ namespace tlön
         {L"i32", L"integer"}
       };
 
+
     protected:
+      wstring default_value_for(const wstring& tlon_type_name) override 
+      {
+        return L""s;
+      }
+
       /**
        * \brief Gets you the VHDL type, supporting arbitrary bitness.
        * \param tlon_type_name 

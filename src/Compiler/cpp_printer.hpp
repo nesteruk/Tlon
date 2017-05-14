@@ -8,23 +8,32 @@ namespace tlön
   {
     struct cpp_printer : printer
     {
-      map<wstring, wstring> known_types{
-        {L"i8", L"int8_t"},
-        {L"u8", L"uint8_t"},
-        {L"i16", L"int16_t"},
-        {L"u16", L"uint16_t"},
-        {L"i32", L"int32_t"},
-        {L"u32", L"uint32_t"},
-        {L"i64", L"int64_t"},
-        {L"u64", L"uint64_t"},
-        {L"f32", L"float"},
-        {L"f64", L"double"},
-        {L"isize", L"int"},
-        {L"usize", L"unsigned int"},
-        {L"string", L"std::wstring"},
+      struct known_type_info
+      {
+        wchar_t* language_specific_name;
+        wchar_t* default_value;
+      };
+
+      map<wstring, known_type_info> known_types
+      {
+        { L"i8", {L"int8_t", L"0"} },
+        { L"u8", {L"uint8_t", L"0"} },
+        { L"i16", {L"int16_t", L"0"} },
+        { L"u16", {L"uint16_t", L"0"} },
+        { L"i32", {L"int32_t", L"0"} },
+        { L"u32", {L"uint32_t", L"0"} },
+        { L"i64", {L"int64_t", L"0" } },
+        { L"u64", {L"uint64_t", L"0"} },
+        { L"f32", {L"float", L"0.0f"} },
+        { L"f64", {L"double", L"0.0"} },
+        { L"isize", {L"int", L"0"} },
+        { L"usize", {L"unsigned int", L"0"} },
+        { L"string", {L"std::wstring", L""} },
 
         // individual bit represented as a boolean
-        {L"bit", L"bool"}
+        { L"bit", {L"bool", L"false"} },
+        // logical type; probably needs tweaking for HDLs
+        { L"bool", {L"bool", L"false"} }
       };
 
 
@@ -32,7 +41,13 @@ namespace tlön
       wstring type_name(const wstring& tlon_type_name) override
       {
         auto it = known_types.find(tlon_type_name);
-        return it == known_types.end() ? tlon_type_name : known_types[tlon_type_name];
+        return it == known_types.end() ? tlon_type_name : known_types[tlon_type_name].language_specific_name;
+      }
+
+      wstring default_value_for(const wstring& tlon_type_name) override
+      {
+        auto it = known_types.find(tlon_type_name);
+        return it == known_types.end() ? wstring{} : known_types[tlon_type_name].default_value;
       }
 
       void emit_reflection_info(const property& p) 
@@ -127,12 +142,21 @@ namespace tlön
           // getters and setters are public
           buffer << reduced_indent() << "protected:" << nl;
           buffer << indent;
+          if (obj.is_constant)
+            buffer << "const static "; // 
           apply_visitor(renderer{ *this }, obj.type);
           buffer << " " << identifier(name);
 
           // default value, if any
           if (obj.default_value.size() > 0)
             buffer << "{" << obj.default_value << "}";
+          else
+          {
+            // todo: but we insist on each variable having a default, so...
+            buffer << "{";
+            apply_visitor(default_value_visitor{*this}, obj.type);
+            buffer << "}";
+          }
 
           buffer << ";" << nl;
           buffer << reduced_indent() << "public:" << nl;
@@ -197,6 +221,32 @@ namespace tlön
         }
         buffer << ">";
       }
+
+      struct default_value_visitor : static_visitor<>
+      {
+        cpp_printer& printer;
+
+        explicit default_value_visitor(cpp_printer& printer)
+          : printer{printer}
+        {
+        }
+
+        void operator()(const basic_type& bt) const
+        {
+          // for a scalar value, we just dump its default
+          printer.buffer << printer.default_value_for(bt.name);
+        }
+
+        void operator()(const tuple_signature& ts) const
+        {
+          for (auto& e : ts.elements)
+          {
+            this->operator()(e.type);
+            printer.buffer << ", ";
+          }
+          printer.backtrack(2);
+        }
+      };
 
       //! Emits reflection data about members
       struct reflection_renderer : static_visitor<>
@@ -286,6 +336,11 @@ namespace tlön
 
           if (use_const_ref) buffer << "&";
           buffer << " " << name;
+
+          // default value, if any
+          if (obj.default_value.length() > 0)
+            buffer << " = " << obj.default_value;
+
           if (i + 1 != obj.names.size())
             buffer << ", ";
         }
@@ -314,13 +369,13 @@ namespace tlön
       void visit(const class_declaration& obj) override
       {
         auto ns = name_space(obj.name);
-        auto name = identifier(*obj.name.rbegin());
+        auto class_name = identifier(*obj.name.rbegin());
 
         // prepended by the abstract comment if necessary
-        buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << name;
+        buffer << indent << (obj.is_abstract() ? "/* abstract */ " : "") << "class " << class_name;
 
         // process inheritors; at the very least, there's tlön::object
-        buffer << " : public tlön::object<" << name << ">";
+        buffer << " : public tlön::object<" << class_name << ">";
 
         buffer << nl;
         {
@@ -331,7 +386,7 @@ namespace tlön
           // any ctor declarations?
           if (param_count > 0)
           {
-            buffer << indent << name << "(";
+            buffer << indent << class_name << "(";
             for (int i = 0; i < param_count; ++i)
             {
               auto& p = obj.primary_constructor_parameters[i];
@@ -373,11 +428,11 @@ namespace tlön
           // emit automatic class members
           emit_automatic_class_members(obj);
         } // end of class scope
-        buffer << " /* " << name << " */" << nl;
+        buffer << " /* " << class_name << " */" << nl << nl;
 
         // emit out-of-class reflection members
-        buffer << indent << L"tlön::reflection::type_info ChangeMe::type_info =" << nl
-          << L"tlön::reflection::type_info" << nl;
+        buffer << indent << L"tlön::reflection::type_info ChangeMe::type_info ="
+          << L" tlön::reflection::type_info" << nl;
         {
           const auto& _ = scope(true);
 
@@ -385,7 +440,7 @@ namespace tlön
           buffer << L"L\"" << ns.str() << L"\"," << nl;
 
           // name
-          buffer << L"L\"" << name << L"\"," << nl;
+          buffer << L"L\"" << class_name << L"\"," << nl;
 
           
           {
@@ -409,6 +464,23 @@ namespace tlön
                 buffer << "," << nl;
               }
             backtrack(1, true);
+          }
+        }
+
+        // emit out-of-class const/static initializers
+        for (auto c : obj.members)
+        {
+          if (property* pp = get<property>(&c))
+          {
+            if (pp->is_constant)
+            {
+              for (auto& prop_name : pp->names)
+              {
+                buffer << indent << L"const ";
+                apply_visitor(renderer{ *this }, pp->type);
+                buffer << L" " << class_name << L"::" << prop_name << L" = " << pp->default_value << L";" << nl;
+              }
+            }
           }
         }
       }

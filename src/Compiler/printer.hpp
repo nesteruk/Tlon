@@ -17,7 +17,7 @@ namespace tlön
       }
       void backtrack(size_t char_count, bool remove_newline = false)
       {
-        size_t total_count = char_count + (remove_newline ? wcslen(nl) : 0);
+        int total_count = char_count + (remove_newline ? wcslen(nl) : 0);
         // hack: rather crude way of doing things
         buffer.seekp(-total_count, ios_base::end);
       }
@@ -27,6 +27,7 @@ namespace tlön
       const wchar_t* nl{ L"\r\n" };
 
       virtual wstring type_name(const wstring& tlon_type_name) = 0;
+      virtual wstring default_value_for(const wstring& tlon_type_name) = 0;
 
       /// Reduced indent, usable for public: and similar.
       wstring reduced_indent() const
@@ -51,7 +52,7 @@ namespace tlön
         ~scope_token()
         {
           p.indent = p.indent.substr(0, p.indent.length() - p.indent_char.length());
-          p.buffer << p.indent << L"}" << (semicolon ? L";" : L"");
+          p.buffer << p.indent << L"}" << (semicolon ? L";" : L"") << p.nl;
         }
       };
 
