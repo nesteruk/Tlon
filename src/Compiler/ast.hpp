@@ -136,7 +136,7 @@ namespace tlön
     wstring name;
     vector<parameter_declaration> parameters;
     type_specification return_type;
-    vector<statement> statements;
+    block block;
 
     void accept(ast_element_visitor& visitor) override
     {
@@ -259,7 +259,7 @@ BOOST_FUSION_ADAPT_STRUCT(
   (std::wstring, name),
   (std::vector<tlön::parameter_declaration>, parameters),
   (tlön::type_specification, return_type),
-  (std::vector<tlön::statement>, statements)
+  (tlön::block, block)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

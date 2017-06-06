@@ -102,7 +102,7 @@ namespace tlön
         {
           const auto& _ = scope();
 
-          for (auto& st : obj.statements)
+          for (auto& st : obj.block.statements)
           {
             apply_visitor(renderer{ *this }, st);
             buffer << "," << nl;

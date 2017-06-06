@@ -87,7 +87,7 @@ namespace tlön
         >> lit(L"=>")
         >> type_specification_rule
         >> lit(L"{")
-        >> block_rule
+        //>> block_rule
         >> lit(L"}");
 
       anonymous_function_signature_rule %=
