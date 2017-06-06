@@ -74,6 +74,10 @@ namespace tlön
         >> type_specification_rule
         >> -(L":=" >> +(alnum));
 
+      block_rule %=
+        statement_rule % (qi::eol | L';')
+        >> qi::attr(42);
+
       function_body_rule %=
         identifier_rule
         >> lit(L":=")
@@ -83,7 +87,7 @@ namespace tlön
         >> lit(L"=>")
         >> type_specification_rule
         >> lit(L"{")
-        >> *(statement_rule)
+        >> block_rule
         >> lit(L"}");
 
       anonymous_function_signature_rule %=
@@ -126,6 +130,7 @@ namespace tlön
         *(interface_declaration_rule | class_declaration_rule);
     }
 
+    qi::rule<Iterator, block(), space_type> block_rule;
     qi::rule<Iterator, anonymous_function_signature(), space_type> anonymous_function_signature_rule;
     qi::rule<Iterator, statement(), space_type> statement_rule;
     qi::rule<Iterator, assignment_statement(), space_type> assignment_statement_rule;

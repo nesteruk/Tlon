@@ -71,6 +71,13 @@ namespace tlön
         return identifier_helper::get(name);
       }
 
+      void visit(const block& obj) override
+      {
+        renderer r{ *this };
+        for (auto& s : obj.statements)
+          apply_visitor(r, s);
+      }
+
       void visit(const function_body& obj) override
       {
         buffer << indent;

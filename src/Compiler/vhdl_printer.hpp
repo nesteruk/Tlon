@@ -26,6 +26,12 @@ namespace tlön
         {L"i32", L"integer"}
       };
 
+      void visit(const block& obj) override
+      {
+        renderer r{ *this };
+        for (auto& s : obj.statements)
+          apply_visitor(r, s);
+      }
 
     protected:
       wstring default_value_for(const wstring& tlon_type_name) override 
@@ -144,6 +150,8 @@ namespace tlön
     inline void vhdl_printer::visit(const tuple_signature& obj)
     {
     }
+
+    
 
     inline void vhdl_printer::visit(const property& obj)
     {

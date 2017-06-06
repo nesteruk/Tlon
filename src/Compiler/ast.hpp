@@ -14,6 +14,7 @@ namespace tlön
   struct property;
   struct function_body;
   struct basic_type;
+  struct block;
 
   struct ast_element_visitor
   {
@@ -31,6 +32,7 @@ namespace tlön
     virtual void visit(const function_body& obj) = 0;
     virtual void visit(const basic_type& obj) = 0;
     virtual void visit(const anonymous_function_signature& obj) = 0;
+    virtual void visit(const block& obj) = 0;
   };
 
   struct ast_element
@@ -84,6 +86,17 @@ namespace tlön
   };
 
   typedef variant<assignment_statement> statement;
+
+  struct block : ast_element
+  {
+    vector<statement> statements;
+    spirit::qi::unused_type dummy;
+
+    void accept(ast_element_visitor& visitor) override
+    {
+      visitor.visit(*this);
+    }
+  };
 
   struct parameter_declaration : ast_element
   {
@@ -266,4 +279,10 @@ BOOST_FUSION_ADAPT_STRUCT(
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::file,
   (std::vector<tlön::top_level_declaration>, declarations)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::block,
+  (std::vector<tlön::statement>, statements),
+  (boost::spirit::qi::unused_type, dummy)
 )
