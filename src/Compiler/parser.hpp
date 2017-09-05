@@ -43,6 +43,10 @@ namespace tlön
         // it was a nice idea, but having a c++ specific table is stupid
         >> identifier_rule;
 
+      enum_declaration_rule %=
+        -qi::hold[identifier_rule >> lit(L".")]
+        >> identifier_rule;
+
       type_specification_rule %=
         basic_type_rule | tuple_signature_rule;
 
@@ -55,10 +59,10 @@ namespace tlön
         >> lit(L":")
         >> type_specification_rule
         >> -(
-             (L":=" >> spirit::attr(false) 
-              | 
-              L"≡" >> spirit::attr(true)
-            ) >> +(alnum - ';'))
+        (L":=" >> spirit::attr(false)
+          |
+          L"≡" >> spirit::attr(true)
+          ) >> +(alnum - ';')) // value on the right
         >> lit(L";");
 
       tuple_signature_rule %=
@@ -117,17 +121,32 @@ namespace tlön
         >> *(function_body_rule | property_rule | function_signature_rule)
         >> "}";
 
+      enum_declaration_rule %=
+        lit(L"enum") >> +(alnum) % '.'
+        >> "{"
+        >> *(+(alnum) % ',')
+        >> "}";
+
       assignment_statement_rule %=
         identifier_rule % ","
         >> lit(L"<-")
-        >> identifier_rule
-        >> lit(L";");
+        >> identifier_rule;
 
       statement_rule %=
         assignment_statement_rule;
 
       file_rule %= spirit::eps >>
-        *(interface_declaration_rule | class_declaration_rule);
+        *(interface_declaration_rule | class_declaration_rule | enum_declaration_rule);
+
+      statement_rule.name("statement");
+      block_rule.name("block");
+      function_signature_rule.name("function signature");
+      function_body_rule.name("function body");
+      property_rule.name("property");
+      
+      debug(class_declaration_rule);
+      debug(function_signature_rule);
+      debug(block_rule);
     }
 
     qi::rule<Iterator, block(), space_type> block_rule;
@@ -145,7 +164,9 @@ namespace tlön
     qi::rule<Iterator, function_signature(), space_type> function_signature_rule;
     qi::rule<Iterator, interface_declaration(), space_type> interface_declaration_rule;
     qi::rule<Iterator, class_declaration(), space_type> class_declaration_rule;
+    qi::rule<Iterator, enum_declaration(), space_type> enum_declaration_rule;
     qi::rule<Iterator, file(), space_type> file_rule;
+
   };
 
   // relies on boost fusion also

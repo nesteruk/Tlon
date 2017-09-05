@@ -15,6 +15,7 @@ namespace tlön
   struct function_body;
   struct basic_type;
   struct block;
+  struct enum_declaration;
 
   struct ast_element_visitor
   {
@@ -33,6 +34,7 @@ namespace tlön
     virtual void visit(const basic_type& obj) = 0;
     virtual void visit(const anonymous_function_signature& obj) = 0;
     virtual void visit(const block& obj) = 0;
+    virtual void visit(const enum_declaration& obj) = 0;
   };
 
   struct ast_element
@@ -191,7 +193,20 @@ namespace tlön
     }
   };
 
-  typedef variant<interface_declaration, class_declaration> top_level_declaration;
+  struct enum_declaration : ast_element
+  {
+    vector<wstring> name;
+    vector<wstring> members;
+
+    void accept(ast_element_visitor& visitor) override {
+      visitor.visit(*this);
+    }
+  };
+
+  typedef variant<
+    interface_declaration, 
+    class_declaration, 
+    enum_declaration> top_level_declaration;
 
   struct file : ast_element
   {
@@ -264,9 +279,15 @@ BOOST_FUSION_ADAPT_STRUCT(
 
 BOOST_FUSION_ADAPT_STRUCT(
   tlön::class_declaration,
-  (std::vector<wstring>, name),
+  (std::vector<std::wstring>, name),
   (std::vector<tlön::parameter_declaration>, primary_constructor_parameters),
   (std::vector<tlön::class_member>, members)
+)
+
+BOOST_FUSION_ADAPT_STRUCT(
+  tlön::enum_declaration,
+  (std::vector<std::wstring>, name),
+  (std::vector<std::wstring>, members)
 )
 
 BOOST_FUSION_ADAPT_STRUCT(

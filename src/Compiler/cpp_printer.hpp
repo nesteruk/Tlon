@@ -71,6 +71,9 @@ namespace tlön
         return identifier_helper::get(name);
       }
 
+
+      
+
       void visit(const block& obj) override
       {
         renderer r{ *this };
@@ -371,6 +374,42 @@ namespace tlön
 
         buffer << indent <<
           "static tlön::reflection::type_info type_info;" << nl;
+      }
+
+      void visit(const enum_declaration& obj) override
+      {
+        auto ns = name_space(obj.name);
+        auto enum_name = identifier(*obj.name.rbegin());
+
+        buffer << indent << "enum class " << enum_name << nl;
+        {
+          const auto& s = scope(true);
+          for (auto i = 0u; i < obj.members.size(); ++i)
+          {
+            const auto& member = obj.members[i];
+            buffer << indent << member; 
+            if (i+1 != obj.members.size()) buffer << ",";
+            buffer << nl;
+          }
+        }
+        buffer << nl;
+
+        // dump the stream output operator
+        buffer << indent << "std::ostream& operator<<(std::ostream& os, const "
+          << enum_name << "& obj)" << nl;
+        {
+          const auto& s = scope(false);
+          buffer << indent << "switch (obj)" << nl;
+          buffer << indent << "{" << nl;
+          for (const auto& member : obj.members)
+          {
+            buffer << indent << "case " << enum_name << "::" << member << ": "
+              << "return os << \"" << member << "\";" << nl;
+          }
+          buffer << indent << "default: return os << \"Unknown case of "
+            << enum_name << "\";" << nl;
+          buffer << indent << "}" << nl;
+        }
       }
 
       void visit(const class_declaration& obj) override

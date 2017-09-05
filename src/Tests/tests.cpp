@@ -5,6 +5,9 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-  Demo::ChangeMe cm{0,0};
-  cout << cm.get_type_info().name << endl;
+  auto red = ActiveMesa::Color::red;
+  cout << red << endl;
+
+  //Demo::ChangeMe cm{0,0};
+  //cout << cm.get_type_info().name << endl;
 }
