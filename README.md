@@ -22,10 +22,11 @@ The following is an approximate featureset with explanations *why* those feature
 * Minute/second marks `"'` cannot be used for string or characters.
 * `<` or `>` cannot be used for anything other than less-that/greater-than.
 
-## Basic Control Flow
+## Basic Operations and Control Flow
 * Definitions via `:=` for non-constant and `≝` (or `≡`) for constants. (WIP)
-* Assignment via `->` and `<-` (both ways). This helps readability in some cases
-* Assignment can cluster (`x,y <- 0`, `x -> y,z`) and daisy-chain (`x -> y -> z`).
+* `=` used as comparison operator, also valid in mutual comparisons `if (a = b = c)`
+* Assignment via `->` and `<-` (both ways). This helps readability in some cases.
+* Assignment can cluster (`x,y <- 0`, `x -> y,z`) and daisy-chain (`x -> y -> z`)
 * JAI's `delay` for executing code at the end of scope.
 
 ## Identifiers/Variables
@@ -35,7 +36,7 @@ The following is an approximate featureset with explanations *why* those feature
 
 ## Namespaces
 
-* Namespace declarations do not cause a scope, content not wrapped in `{}`. This avoids a 1-tab indentation of *everything* you write and in 99% is a meaningless idea.
+* Namespace declarations do not 'cause' a scope, content not wrapped in `{}`. This avoids a 1-tab indentation of *everything* you write and in 99% is a meaningless idea.
 * Multipart declarations are permitted: `namespace Foo.Bar`. Avoids insanity like `namespace Foo { namespace Bar { ...`.
 * Fused namespace-and-class declaration. Writing `class Foo.Bar` creates namespace `Foo` and treats all subsequence input as pertaining to class `Bar`, unless...
 * Fused namespace-and-inner-class declaration. If you must. Writing `class Foo.Bar.Baz` where a class `Bar` already exists in namespace `Foo` does, you guessed it, an inner class `Baz` that's declared inside `Bar`.
